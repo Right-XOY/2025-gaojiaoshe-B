@@ -1,0 +1,42 @@
+# ===== LaTeX 编译产物 =====
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.dvi
+*.xdv
+
+# latexmk 输出目录（见 .latexmkrc 中 $out_dir = 'out'）
+out/
+
+# ===== 操作系统文件 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== IDE / 编辑器配置 =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ===== MATLAB =====
+*.asv

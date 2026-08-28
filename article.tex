@@ -1,0 +1,266 @@
+% 作者来自sysu，如果想了解讨论数模比赛的更多内容和信息（例如ai提示词），可以访问个人主页https://github.com/sleepyy-dog/Survival-Handbook-by-KOKO
+
+% 总体内容是和全国大学生数学建模高度相关的，在此之外还加入一点对于华数杯等中文赛的微调（国赛可以直接去掉）。
+
+% 可能这个模板的话有点多，但是相信如果认真全都看下来对于数模新手和老手都会有帮助。
+
+% 建议将此模板在overleaf或者texpage等在线编辑器编译
+
+% 在vscode等本地ide中运行会遇到的一个问题是中文文件名不兼容，总之bug挺多，不建议
+
+% 请使用 xelatex 来编辑！！！！！！！！！
+\PassOptionsToPackage{quiet}{xeCJK}
+\documentclass[withoutpreface,bwprint]{cumcmthesis}
+\input{structure}
+
+% 论文标题
+ 
+\title{2026年全国大学生数学建模竞赛统一模板} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+% 这个栏目模块是用于在一些要求的比赛例如华数杯，会要求你有此栏目，国赛不需要可以直接注释掉
+
+\begin{table}
+    \centering
+    \renewcommand{\arraystretch}{1.8}  % 调整行高，1.8倍行距
+    \begin{tabular}{|M{3cm}|M{8cm}|M{2.5cm}|}
+        \hline
+        \multicolumn{1}{|c|}{\large{所属类别}} & \multirow{2}{*}{\large\textbf{2026年"华数杯"数模竞赛(国赛注释此表)}} & \multicolumn{1}{|c|}{\large{参赛编号}}     \\ \cline{1-1} \cline{3-3} 
+        \normalsize{本科组} & & \normalsize{123456} \\ 
+        \hline
+    \end{tabular}
+\end{table}
+
+\maketitle
+
+\begin{abstract}
+
+简单说明问题背景（一句浅一句深）。
+
+\textbf{对于问题一,}（一两个句子总结整体方法、主要结果和结论）。
+
+\textbf{对于问题二,}
+
+\textbf{对于问题三,}
+
+\textbf{对于问题四,}
+
+（无总结）
+
+\keywords{关键词;关键词;关键词;关键词;关键词(四到七个即可，五个差不多)}
+
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{问题重述（这一部分总共就一页，配图之后可能有两页。）}
+
+\subsection{问题背景（内容在7行左右）}
+
+\subsection{问题提出}
+
+前置介绍......
+
+\textbf{问题1：}  
+
+\textbf{问题2：}  
+
+\textbf{问题3：} 
+
+\textbf{问题4：}  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{问题分析（通常一页，加图片可能会有两页）}
+
+\subsection{问题一分析}
+对于问题一，
+
+\subsection{问题二分析}	
+对于问题二，
+
+\subsection{问题三分析}
+对于问题三，
+
+\subsection{问题四分析}
+对于问题四，
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\section{模型假设}
+
+\textbf{（1）假设1}：
+
+\textbf{（2）假设2}：
+
+\textbf{（3）假设3}：
+
+\textbf{（4）假设4}：
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\section{符号说明（参考条数为十到二十条）}
+\begin{table}[H]
+    \centering
+    % \caption{符号说明} % 这个选择性增加
+    \begin{tabularx}{\textwidth}{CLC}
+        \toprule
+        符号    & 说明    & 单位 \\
+        \midrule
+        $m     $& 质量 & $kg$ \\
+        $V     $& 体积 & $m^3$ \\
+        \bottomrule
+    \end{tabularx}
+    \label{tab:符号说明}
+\end{table}
+
+\section{问题一的模型的建立和求解}
+
+有一个前置的流程介绍和流程图。
+
+\subsection{模型建立}
+
+\subsubsection{模型1名称}
+
+详细流程，算法可画流程图和示意图。
+
+\subsubsection{模型2名称}
+
+具体内容
+\subsection{模型求解结果}
+
+不光呈现结果，要进行仿真绘图和数据绘图，和前文的假设或者直观感受相符。
+
+还可以进行灵敏度的分析。
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\section{问题二的模型的建立和求解}
+
+\subsection{模型建立}
+
+具体内容
+
+\subsubsection{模型1名称}
+
+
+
+\subsubsection{模型2名称}
+
+
+
+\subsection{模型求解结果}
+
+问题二结果及分析。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\section{问题三的模型的建立和求解}
+
+具体内容
+
+\subsection{模型建立}
+
+
+
+\subsubsection{模型1名称}
+
+
+
+\subsubsection{模型2名称}
+
+
+
+\subsection{模型求解结果}
+
+问题三结果及分析。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\section{问题四的模型的建立和求解}
+
+\subsection{模型建立}
+
+具体内容
+
+\subsubsection{模型1名称}
+
+
+
+\subsubsection{模型2名称}
+
+
+
+\subsection{模型求解结果}
+
+问题四结果及分析。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{模型的评价}
+
+控制在三分之一页即可
+
+\subsection{模型的优点（三个左右）}
+\textbf{（1）优点1}：
+
+\textbf{（2）优点2}：
+
+\textbf{（3）优点3}：
+
+\subsection{模型的缺点（两个或三个）}
+\textbf{（1）缺点1}
+
+\textbf{（2）缺点2}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 参考文献
+
+% 这里对于参考文献的标注本来可以直接写在bib文件中来使用，但是用于这个文件无法自定义官方要求的ai使用的引用说明（DeepSeek,  DeepSeek-chat-v3.1,  深度求索(DeepSeek),  2025-09-06.），所以我们给出以下自定义解决的方案。
+
+% {99} 表示序号最多为两位数，留出足够宽度
+\begin{thebibliography}{99} 
+
+% 遵循 GB/T 7714-2015
+\bibitem{ref1} 昂温 G, 斯特朗 G. 概率论与数理统计[M]. 2版. 北京: 科学出版社, 2002.
+\bibitem{ref2} 张三, 李四. 关于A算法的优化研究[J]. 计算机学报, 2022, 45(10): 2100-2110.
+\bibitem{ai:deepseek1} DeepSeek,  DeepSeek-chat-v3.1,  深度求索(DeepSeek),  2025-09-06.
+\end{thebibliography}
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 附录
+\begin{appendices}
+\section{文件列表}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{CC}
+\toprule
+文件名   & 功能描述 \\
+\midrule
+P1.py & 问题一程序代码 \\
+P2.py & 问题二程序代码 \\
+P3.py & 问题三程序代码 \\
+P4.py & 问题四程序代码 \\
+\bottomrule
+\end{tabularx}
+\label{tab:文件列表}
+\end{table}
+
+\section{代码}
+\noindent 
+
+P1.py
+\lstinputlisting[language=python]{code/q2.py}
+
+P2.py
+\lstinputlisting[language=python]{code/q2.py}
+
+P3.py
+\lstinputlisting[language=python]{code/q2.py}
+
+P4.py
+\lstinputlisting[language=python]{code/q2.py}
+\end{appendices}
+\end{document}
