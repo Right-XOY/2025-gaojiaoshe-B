@@ -19,7 +19,9 @@
 
 针对问题二，设计完整的光谱预处理与参数反演流程。采用\textbf{滑动窗口 FFT}定量确定低波数异常区的裁剪分界点，经等间距重采样、\textbf{Hampel 滤波}、\textbf{AsLS 基线校正}与\textbf{Savitzky--Golay 平滑}提取纯干涉振荡信号；构造两个入射角共享厚度与色散系数的\textbf{联合非线性最小二乘目标}，以 FFT 与\textbf{差分进化}提供参数初值，用\textbf{剖面扫描与 Levenberg--Marquardt 算法}精调厚度。计算得到 Cauchy 模型厚度 $7.4755\ \mu$m、Sellmeier 单振子模型厚度 $7.4791\ \mu$m，两者相对偏差约 $0.05\%$，95\% 置信区间宽度小于 $0.012\ \mu$m；\textbf{AIC 与 BIC}一致表明 Sellmeier 单振子模型更优。可靠性检验表明，加入 $5\%$ 高斯噪声后厚度漂移小于 $0.1\%$，算法对随机噪声稳健；残差频谱在干涉主频附近仍存在显著峰，说明双光束模型遗漏了周期成分，为多光束干涉修正提供依据。
 
-\keywords{碳化硅;外延层厚度;红外干涉法;双光束干涉;色散模型;非线性最小二乘;可靠性检验}
+针对问题三，将问题一的双光束模型推广为多光束干涉：对逐次反射的复振幅求和并取等比级数极限，导出 Airy 反射率公式，并证明双光束模型是其保留一阶项的近似。从振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠五个方面推导多光束干涉的必要条件，并借助机制诊断仿真量化衬底吸收引入的厚度系统偏差。对附件3、附件4的硅晶圆片，采用双光束与 Airy 双模型拟合、界面反射率收敛比估计、残差谐波检验与 \textbf{AIC/BIC} 模型比选进行判定，得到 $\Delta\mathrm{AIC}=+134.85$，据此认定硅片出现多光束干涉；进而以 Airy 公式为反射率框架，以外延层 Sellmeier 色散与衬底 Drude 色散为折射率模型，建立硅外延层厚度反演算法，反演得到硅外延层厚度 $\mathbf{3.4030}\ \mu$m、95\% 置信区间 $[3.4013, 3.4047]\ \mu$m。对附件1、附件2的碳化硅晶圆片以同一套判据检验，得到 $\Delta\mathrm{AIC}=-15.24$ 且界面反射率收敛比仅 $0.0035$，据此认定碳化硅晶圆片未出现多光束干涉，无需修正，维持问题二的厚度结论。
+
+\keywords{碳化硅;外延层厚度;红外干涉法;双光束干涉;多光束干涉;色散模型;非线性最小二乘;可靠性检验}
 
 \end{abstract}
 
@@ -29,88 +31,60 @@
 
 \subsection{问题背景}
 
-碳化硅是第三代半导体材料的代表，其外延层厚度对器件击穿电压、导通电阻与长期可靠性有重要影响，是外延材料质量控制的关键参数。红外干涉法利用外延层与衬底因掺杂浓度不同而折射率不同的特点，使红外光在两界面反射的两束光形成干涉条纹；条纹形态由波长、外延层折射率与入射角共同决定，故可由实测干涉光谱反推外延层厚度。由于外延层折射率随波长与掺杂浓度变化，建模时必须计入折射率色散。红外光在外延结构中的双光束干涉过程如图~\ref{fig:q1-incident} 所示。
+碳化硅是第三代半导体材料的代表，其外延层厚度对器件击穿电压、导通电阻与长期可靠性有重要影响，是外延材料质量控制的关键参数。红外干涉法利用外延层与衬底因掺杂浓度不同而折射率不同的特点，使红外光在两界面反射的两束光形成\textbf{干涉条纹}；条纹形态由波长、外延层折射率与入射角共同决定，故可由实测干涉光谱反推外延层厚度。由于外延层折射率随波长与掺杂浓度变化，建模时必须计入折射率色散。红外光在外延结构中的双光束干涉过程如图~\ref{fig:q1-incident} 所示。
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.78\linewidth]{figures/q1_入射示意图.png}
+    \includegraphics[width=0.55\linewidth]{figures/q1_入射示意图.png}
     \caption{红外光在空气、外延层与衬底三层介质中的双光束干涉示意图}
     \label{fig:q1-incident}
 \end{figure}
 
 \subsection{问题提出}
 
-本问题属于基于红外干涉光谱的外延层厚度反演问题，可归结为物理建模、参数反演与可靠性验证三类任务。记外延层厚度为 $d$，外延层折射率为 $n_1(\nu)$，空气与衬底折射率分别为 $n_0$、$n_2$，红外光入射角为 $\theta_0$，实测反射率为 $R^{\mathrm{obs}}(\nu)$。问题的数学本质是：在已知 $n_0$、$n_2$、$\theta_0$ 与实测光谱 $R^{\mathrm{obs}}(\nu)$ 的条件下，求解厚度 $d$ 与色散参数，并评估解的可靠性。
+本问题属于基于红外干涉光谱的外延层厚度反演问题，可归结为物理建模、参数反演与可靠性验证三类任务。
 
-针对问题一，在只考虑外延层上表面一次反射、透射以及衬底表面一次反射、透射的近似条件下，建立反射率 $R(\nu)$ 与厚度 $d$、外延层折射率 $n_1(\nu)$ 之间的显式数学模型，为厚度反演提供正模型。
+\textbf{针对问题一}，在只考虑外延层上表面一次反射、透射以及衬底表面一次反射、透射的近似条件下，建立反射率 $R(\nu)$ 与厚度 $d$、外延层折射率 $n_1(\nu)$ 之间的显式数学模型，为厚度反演提供正模型。
 
-针对问题二，基于问题一的数学模型，设计由实测反射率光谱反演厚度 $d$ 的数值算法；利用附件1（$\theta_0=10^{\circ}$）与附件2（$\theta_0=15^{\circ}$）对同一碳化硅晶圆片的实测光谱给出计算结果，并从拟合优度、参数不确定性、抗噪声能力、双角度一致性与残差结构等方面检验结果的可靠性。
+\textbf{针对问题二}，基于问题一的数学模型，设计由实测反射率光谱反演厚度 $d$ 的数值算法；利用附件两个不同角度的数据对同一碳化硅晶圆片的实测光谱给出计算结果，并检验结果的可靠性。
 
-针对问题三，推导光波在外延层界面与衬底界面多次反射、透射产生多光束干涉的必要条件，分析多光束干涉对外延层厚度计算精度的影响；据此判定附件3与附件4中硅晶圆片测试结果是否出现多光束干涉，建立硅外延层厚度计算模型与算法并给出结果；若多光束干涉也影响碳化硅晶圆片测试结果，需设法消除其影响并给出修正结果。
+\textbf{针对问题三}，推导光波在外延层界面与衬底界面多次反射、透射产生多光束干涉的必要条件，分析多光束干涉对外延层厚度计算精度的影响；据此判定附件3与附件4中硅晶圆片测试结果是否出现多光束干涉，建立硅外延层厚度计算模型与算法并给出结果；若多光束干涉也影响碳化硅晶圆片测试结果，需设法消除其影响并给出修正结果。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{问题分析}
 
-\subsection{总体分析}
 
-本问题属于物理机理驱动的光谱反演问题，解决思路是先建立红外干涉反射率的正模型，再将厚度反演转化为参数估计问题，最后用实测数据完成求解与可靠性验证。问题一完成双光束干涉反射率模型的推导并引入色散模型，问题二完成光谱预处理、参数初值估计、精细优化与可靠性检验，整体解决框架如图~\ref{fig:framework} 所示。
+\subsection {问题一分析}
 
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
-        grow=right,
-        level distance=3.8cm,
-        level 1/.style={sibling distance=5.6cm},
-        level 2/.style={sibling distance=2.2cm},
-        every node/.style={draw, rounded corners=2pt, align=center, inner sep=5pt, font=\small},
-        edge from parent/.style={thick, ->}
-    ]
-    \node {红外干涉光谱\\厚度反演问题}
-        child { node {问题一\\正问题建模}
-            child { node {双光束干涉\\反射率模型} }
-            child { node {Cauchy / Sellmeier\\色散模型} }
-        }
-        child { node {问题二\\逆问题求解}
-            child { node {光谱预处理} }
-            child { node {双角度联合\\最小二乘} }
-            child { node {初值估计与\\剖面扫描精调} }
-            child { node {可靠性检验} }
-        };
-    \end{tikzpicture}
-    \caption{问题一与问题二的建模与求解框架}
-    \label{fig:framework}
-\end{figure}
+问题一旨在建立三层介质结构下的双光束干涉模型，刻画红外反射光谱与外延层厚度、折射率之间的映射关系。仅考虑上下界面各一次反射透射的两束相干光，需要结合 \textbf{Snell 定律}推导几何相位差，判断半波损失的抵消情况；通过\textbf{菲涅尔公式}分别计算 s、p 偏振反射系数并做平均；利用\textbf{Stokes 倒逆关系} 化简透射振幅；由于折射率是变化的，因此引入\textbf{色散模型}以简化折射率随波数的变化；以上模型为为后续问题的求解提供理论依据。
 
-\subsection{问题一分析}
+\subsection {问题二分析}
 
-针对问题一，需要在一次反射、透射近似下建立反射率与厚度、折射率的显式关系。建模对象为空气、外延层与衬底构成的三层介质结构，入射光在两界面各反射一次，两束反射光叠加形成干涉条纹。模型推导需处理四个关键环节：由 Snell 定律与几何光程差确定相位差，并判断两次半波损失是否相互抵消；斜入射时按 s/p 偏振分别计算菲涅尔系数再取平均；第二束反射光的振幅因子含往返透射，需借助 Stokes 倒逆关系化简；折射率随波长变化，须引入色散模型才能分离厚度与折射率。问题一只完成正模型建立，参数求解留待问题二实现。
-
-\subsection{问题二分析}
-
-针对问题二，需要在问题一模型基础上完成厚度反演与可靠性检验。附件1、附件2为同一晶圆片在 $10^{\circ}$ 与 $15^{\circ}$ 入射角下的光谱，厚度与色散参数应当一致，可构造双角度联合反演约束。实测光谱含低波数异常背景、基线漂移与随机噪声，且采样非严格等距，须先完成裁剪、重采样、去异常、去基线与平滑。反演方面，需要处理两个难点：非线性优化对初值敏感，宜用 FFT 与差分进化提供初值；目标函数在厚度方向存在多周期分支，宜用剖面扫描配合 Levenberg--Marquardt 算法精调。可靠性检验从拟合优度、置信区间、抗噪能力、双角度一致性与残差结构五个方面展开。
+问题二基于问题一的双光束模型，利用两组不同入射角实测光谱完成外延层厚度反演，并开展多维度可靠性评估。两套数据来自同一块样品，厚度、色散参数保持不变，可构建双角度联合拟合约束提升辨识能力。原始光谱存在低波数畸变、基线漂移、非等间隔采样等问题，需要针对以上问题的进行数据预处理。反演存在两处数值难点：非线性最小二乘对初值敏感，对此采用\textbf{FFT} 、\textbf{差分进化}获取初值；厚度维度目标函数存在多周期分支，对此采用剖面扫描结合\textbf{L-M} 算法规避解跳变。求解完成后，从拟合优度、参数置信区间、抗噪声仿真、双角度一致性、残差时域与频域结构开展检验；若残差出现周期性振荡，可为后续多光束效应分析提供依据。
 
 \subsection{问题三分析}
 
-（本部分内容待补充。）
+问题三要求把双光束模型推广为多光束干涉，并定量判定两组实测光谱是否出现多光束干涉。首先将外延层内逐次往返反射的复振幅求和，由等比级数极限导出 Airy 反射率公式，并说明它与双光束模型的一阶近似关系；随后从振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠等物理条件出发，推导多光束干涉的必要条件，并借助机制诊断仿真量化其对厚度反演精度的影响。判定层面，双光束模型与 Airy 模型参数个数相同且非嵌套，故以 \textbf{AIC/BIC} 作为最终判据，界面反射率收敛比与残差谐波作为支持性诊断。对硅片，需在完整反射率口径下建立 Airy 反演模型，衬底重掺杂自由载流子吸收用 \textbf{Drude 色散}描述，外延层折射率固定以避免退化解；对碳化硅晶圆片，复用问题二比选出的 Sellmeier 单振子模型，以同一套判据检验是否需要修正。可靠性检验从拟合优度、残差频谱、参数置信区间与双角度一致性等维度展开。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{模型假设}
+\section {模型假设}
+\textbf {（1）介质与界面假设}：空气、外延层、衬底为均匀各向同性透明介质；上下界面近似平行，忽略表面粗糙散射。
 
-针对问题一与问题二，作如下基本假设：
+\textbf {（2）平面波假设}：入射光为单色平面波，入射角为\(\theta_0\)，忽略光源有限孔径效应。
 
-\textbf{（1）双光束假设}：只考虑上表面一次直接反射以及透射进入、下表面一次反射、再透射返回的反射光束，忽略外延层内部多次反射。
+\textbf {（3）折射率大小假设}：折射率满足\(n_0<n_1<n_2\)，用于判定半波损失条件。
 
-\textbf{（2）介质均匀性假设}：空气、外延层与衬底均为均匀、各向同性的理想平面介质；测量波段内吸收可忽略，视为透明介质。
+\textbf {（4）折射率色散假设}：外延层折射率\(n_1\)随波长变化，采用色散模型描述；衬底折射率在测量波段取恒定值（文献）。
 
-\textbf{（3）平面波假设}：入射光为单色平面波，以入射角 $\theta_0$ 照射，可忽略有限孔径效应。
+\textbf {（5）数据一致性假设}：两组入射角光谱来自同一样品，厚度与色散参数不变；测量噪声为零均值高斯白噪声。
 
-\textbf{（4）折射率大小关系假设}：外延层掺杂浓度低于衬底，折射率满足 $n_0<n_1<n_2$，决定半波损失分析与干涉项符号。
+\textbf {（6）多光束叠加假设}：问题三中光在外延层内多次往返反射，逐次反射复振幅构成等比级数；界面反射率较低时级数收敛，可用 Airy 公式描述总反射率。
 
-\textbf{（5）折射率色散假设}：外延层折射率 $n_1$ 随波长变化，可用经验色散模型描述；衬底折射率在测量波段内近似恒定。
+\textbf {（7）理想平行平面假设}：多光束干涉成立以光斑内厚度高度均匀为前提，上下表面近似平行、粗糙度远小于波长。
 
-\textbf{（6）数据质量假设}：附件1与附件2为同一晶圆片在稳定条件下的两角度测试结果，厚度与色散参数一致；随机噪声为零均值高斯白噪声，与信号独立。
+\textbf {（8）硅衬底色散假设}：硅片重掺杂衬底的自由载流子响应用 Drude 色散模型描述；外延层为轻掺杂硅，在中红外波段近似无色散。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -122,43 +96,37 @@
     \centering
     \caption{本文主要符号说明}
     \label{tab:symbols}
-    \begin{tabularx}{\textwidth}{CLC}
+    \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
         \toprule
         符号 & 说明 & 单位 \\
         \midrule
-        $n_0$ & 空气折射率，取 1.0 & 无量纲 \\
-        $n_1$ & 外延层折射率，随波长变化 & 无量纲 \\
-        $n_2$ & 衬底折射率，碳化硅取 2.65 & 无量纲 \\
-        $d$ & 外延层厚度，核心待求参数 & $\mu$m \\
-        $\theta_0$ & 空气侧的入射角 & $^{\circ}$ \\
-        $\theta_1$ & 外延层内的折射角 & $^{\circ}$ \\
+        $n_i$ & 第 $i$ 层介质折射率 & 无量纲 \\
+        $d$ & 外延层厚度 & $\mu$m \\
+        $\theta_i$ & 第 $i$ 层传播角 & $^{\circ}$ \\
         $\nu$ & 波数，$\nu=1/\lambda$ & cm$^{-1}$ \\
-        $\lambda$ & 真空中的光波长 & $\mu$m \\
-        $\Delta$ & 两束反射光的几何光程差 & 长度单位 \\
-        $\delta$ & 两束反射光之间的相位差 & rad \\
-        $r_{01}, r_{12}$ & 上、下界面的振幅反射系数 & 无量纲 \\
-        $t_{01}, t_{10}$ & 上界面往返方向的振幅透射系数 & 无量纲 \\
-        $\tau$ & 上界面往返透射系数乘积，$\tau=t_{01}t_{10}$ & 无量纲 \\
-        $E_0, E_1, E_2$ & 入射光与两束反射光的复振幅 & 相对值 \\
+        $\lambda$ & 真空波长 & $\mu$m \\
+        $\delta$ & 反射光相位差 & rad \\
+        $r_{ij}$ & 第 $i$ 到 $j$ 层界面反射系数 & 无量纲 \\
+        $t_{ij}$ & 第 $i$ 到 $j$ 层界面透射系数 & 无量纲 \\
+        $E_m$ & 第 $m$ 束反射光复振幅 & 相对值 \\
         $R$ & 反射率 & \% 或无量纲 \\
-        $f_0$ & 干涉条纹的光程频率 & cm \\
+        $f_0$ & 干涉条纹光程频率 & cm \\
         $\boldsymbol{\beta}$ & 色散系数向量 & 依模型而定 \\
-        $a_i, b_i$ & 第 $i$ 个入射角的线性校准增益与偏移 & 无量纲 \\
-        $S$ & 残差平方和 & — \\
-        $N$ & 拟合所用数据点总数 & — \\
-        $p$ & 估计参数个数（色散系数与线性校准参数） & — \\
-        $\sigma_n$ & 噪声标准差 & \% \\
-        RMSE & 均方根误差 & \% \\
-        $R^2$ & 决定系数 & 无量纲 \\
+        $a_i, b_i$ & 第 $i$ 角度校准增益与偏移 & 无量纲 \\
+        $\rho$ & 相邻反射光振幅收敛比 & 无量纲 \\
+        $n_i', \kappa_i$ & 复折射率实部与虚部 & 无量纲 \\
+        $n_\infty, \omega_p, \gamma$ & Drude 模型高频极限折射率、等离子波数与碰撞波数 & 无量纲、cm$^{-1}$ \\
+        $H_m$ & 第 $m$ 次谐波信噪比 & 无量纲 \\
         \bottomrule
     \end{tabularx}
 \end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{问题一的模型的建立和求解}
 
-\subsection{模型原理推导}
+\subsection{模型光学原理}
 
 \subsubsection{三层介质结构与物理模型}
 
@@ -199,7 +167,8 @@ n_0\sin\theta_0 = n_1\sin\theta_1,
     \centering
     \caption{两束反射光的半波损失分析}
     \label{tab:halfwave}
-    \begin{tabularx}{\textwidth}{CCCC}
+    \small
+    \begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
         \toprule
         反射事件 & 发生界面 & 折射率变化方向 & 是否发生半波损失 \\
         \midrule
@@ -312,12 +281,12 @@ R^{(\mathrm{D})}(\nu) = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
     \centering
     \caption{两种模型的待定参数}
     \label{tab:q1-params}
-    \begin{tabularx}{\textwidth}{LCL}
+    \begin{tabularx}{\textwidth}{c c >{\centering\arraybackslash}X}
         \toprule
         模型 & 待定参数 & 说明 \\
         \midrule
-        Cauchy 模型 & $d, A, B, C$ & 厚度 $d$ 为核心待求量，$A,B,C$ 为色散系数 \\
-        Sellmeier 模型 & $d, B_1, C_1, B_2, C_2$ & 厚度 $d$ 为核心待求量，其余为色散系数 \\
+        Cauchy 模型 & $d, A, B, C$ & 厚度 $d$ 为核心量，其余为色散系数 \\
+        Sellmeier 模型 & $d, B_1, C_1, B_2, C_2$ & 厚度 $d$ 为核心量，其余为色散系数 \\
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -608,7 +577,7 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
         指标 & Cauchy 模型 & Sellmeier 单振子模型 \\
         \midrule
         厚度 $d$（$\mu$m） & 7.4755 & 7.4791 \\
-        厚度标准差 $\sigma_d$（$\mu$m） & 0.00255 & 0.00307 \\
+        厚度标准差（$\mu$m） & 0.00255 & 0.00307 \\
         $d$ 的 95\% 置信区间（$\mu$m） & [7.4705, 7.4805] & [7.4731, 7.4851] \\
         色散系数 & $A=2.5177$, $B=1.0$, $C=1.0$ & $B=5.3193$, $C=1.0$ \\
         色散系数 95\% 置信区间 & $A\in[2.5133,2.5221]$ & $B\in[5.3096,5.3291]$ \\
@@ -850,7 +819,578 @@ R^{\mathrm{noisy}} = R^{\mathrm{obs}} + \varepsilon,
 
 \section{问题三的模型的建立和求解}
 
-（本部分内容待补充。）
+\subsection{多光束干涉模型的建立}
+
+\subsubsection{多次反射的物理图像}
+
+问题一只保留上表面直接反射的光束1与"透射进入外延层、经下表面反射、再透射出"的光束2。当界面反射较强或衬底存在吸收时，光在外延层内可往返多次，产生更多级次的反射光。仍以空气、外延层、衬底三层介质为对象，但不再截断级次，逐次反射光如图~\ref{fig:q3-multibeam} 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.62\linewidth]{figures/q3_多光束干涉示意图.png}
+    \caption{红外光在外延层内多次反射与透射产生的多光束干涉示意图}
+    \label{fig:q3-multibeam}
+\end{figure}
+
+设入射光复振幅为 $E_0$，第 $m$ 束反射光复振幅为 $E_m$。第一束为上表面直接反射，第二束为一次往返后透射，其后各束每多往返一次就额外多一个"两次界面反射加一个往返相位"的因子。各束复振幅可统一写为
+
+\begin{equation}
+E_1 = r_{01}\,E_0,
+\qquad
+E_2 = t_{01}\,r_{12}\,t_{10}\,e^{i\delta}\,E_0,
+\label{eq:q3-e1e2}
+\end{equation}
+
+\begin{equation}
+E_m = t_{01}\,t_{10}\,r_{12}\,\left(r_{10}r_{12}\right)^{m-2}\,e^{i(m-1)\delta}\,E_0,
+\qquad m\ge 2,
+\label{eq:q3-em}
+\end{equation}
+
+其中 $r_{01}$、$r_{12}$ 为上、下界面振幅反射系数，$r_{10}$ 为外延层到空气的上界面反射系数，$t_{01}$、$t_{10}$ 为上界面往返透射系数；$\delta$ 为光束在外延层内往返一次的相位差
+
+\begin{equation}
+\delta = \frac{4\pi n_1 d\cos\theta_1}{\lambda}
+      = 4\pi n_1 d\cos\theta_1\,\nu,
+\label{eq:q3-phase}
+\end{equation}
+
+$n_1$ 为外延层折射率，$d$ 为厚度，$\theta_1$ 为由 Snell 定律确定的外延层内折射角，$\nu=1/\lambda$ 为波数。式~\eqref{eq:q3-em} 表明，从 $m=2$ 起相邻两束反射光之间相差因子 $r_{10}r_{12}e^{i\delta}$，即往返一次所经历的两次反射与相位累积。
+
+\subsubsection{复振幅等比级数求和与 Airy 公式}
+
+所有反射光在空气侧叠加，合成振幅反射系数为
+
+\begin{equation}
+r = r_{01} + t_{01}t_{10}\,r_{12}\,e^{i\delta}
+    \sum_{m=0}^{\infty}\left(r_{10}r_{12}\,e^{i\delta}\right)^{m},
+\label{eq:q3-series}
+\end{equation}
+
+式中求和项为等比级数。其收敛条件为公比模长小于 1，即
+
+\begin{equation}
+\left|r_{10}r_{12}\,e^{i\delta}\right| < 1,
+\label{eq:q3-converge}
+\end{equation}
+
+由于界面折射率差有限、且介质通常存在一定吸收，该条件一般自然满足。对收敛的等比级数求和，得到保留显式透射系数的严格形式
+
+\begin{equation}
+r = r_{01} + \frac{t_{01}t_{10}\,r_{12}\,e^{i\delta}}{1 - r_{10}r_{12}\,e^{i\delta}}.
+\label{eq:q3-sum}
+\end{equation}
+
+当介质无吸收时，Stokes 倒逆关系成立，即 $t_{01}t_{10}=1-r_{01}^{2}$ 且 $r_{10}=-r_{01}$。代入式~\eqref{eq:q3-sum} 并化简，得到常用的 Airy 紧凑形式
+
+\begin{equation}
+r_{\mathrm{Airy}} = \frac{r_{01} + r_{12}\,e^{i\delta}}{1 + r_{01}r_{12}\,e^{i\delta}},
+\label{eq:q3-airy}
+\end{equation}
+
+式中分子为"直接反射与一次往返反射"的相干叠加，分母 $1+r_{01}r_{12}e^{i\delta}$ 则刻画了多次往返的累积效应；分母的复相位正是多光束干涉区别于双光束干涉的根源。
+
+\subsubsection{含吸收介质的反射率}
+
+当衬底存在吸收时，折射率须写为复数。本文口径为：硅外延层为轻掺杂硅，中红外波段近似透明，故外延层吸收固定为零（$\kappa_1=0$）；吸收来自重掺杂衬底的自由载流子，通过衬底复折射率进入下界面反射系数。衬底复折射率写为
+
+\begin{equation}
+n_2(\nu) = n_2'(\nu) + i\,\kappa_2(\nu),
+\label{eq:q3-n2complex}
+\end{equation}
+
+其中 $n_2'(\nu)$ 为实折射率，$\kappa_2(\nu)$ 为消光系数（吸收指标）。若外延层亦需计及吸收，则 $n_1(\nu)=n_1'+i\kappa_1$，此时相位差 $\delta$ 同时携带传播相位与衰减因子 $e^{-\mathrm{Im}\,\delta}$。对单层薄膜，式~\eqref{eq:q3-airy} 中的 $r_{01}$、$r_{12}$ 按复折射率的菲涅尔公式计算、$\delta$ 取复相位时，该紧凑形式与传输矩阵法给出的 Maxwell 方程精确解解析等价，存在吸收时依然精确，并不依赖 Stokes 关系。因此数值实现直接采用式~\eqref{eq:q3-airy} 的紧凑形式，s、p 偏振分别计算后取平均：
+
+\begin{equation}
+R(\nu) = \left|r(\nu)\right|^{2},
+\qquad
+R = \frac{R^{(s)} + R^{(p)}}{2},
+\label{eq:q3-reflectance}
+\end{equation}
+
+其中 $R^{(s)}=\left|r^{(s)}\right|^{2}$、$R^{(p)}=\left|r^{(p)}\right|^{2}$ 分别为两偏振强度反射率，$r^{(s)}$、$r^{(p)}$ 按式~\eqref{eq:fresnel-s}、\eqref{eq:fresnel-p} 由复折射率计算。
+
+\subsubsection{与双光束模型的关系}
+
+对式~\eqref{eq:q3-series} 的完整级数仅保留一阶项，并取无吸收近似 $r_{10}=-r_{01}$、$t_{01}t_{10}=1-r_{01}^{2}$，即可回到问题一的双光束反射率
+
+\begin{equation}
+R_{\mathrm{two}} = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
+              + 2\,r_{01}r_{12}\left(1-r_{01}^{2}\right)\cos\delta.
+\label{eq:q3-twobeam}
+\end{equation}
+
+因此\textbf{双光束模型是完整多光束级数的一阶近似}，其多光束修正项的相对量级由 $\rho=\lvert r_{01}r_{12}\rvert$ 决定，弱吸收则额外引入 $e^{-\mathrm{Im}\,\delta}$ 量级的衰减修正。当 $\rho$ 很小时，高阶项迅速衰减，双光束模型与实际谱差异甚小；当 $\rho$ 不可忽略或衬底吸收给 $r_{12}$ 引入显著复相位时，双光束模型将出现可观测的系统偏差。
+
+\subsection{多光束干涉产生的必要条件}
+
+\subsubsection{振幅收敛比条件}
+
+相邻两束反射光的振幅比定义为
+
+\begin{equation}
+\rho = \left|r_{01}r_{12}\right|.
+\label{eq:rho}
+\end{equation}
+
+$\rho$ 越大，高阶反射项越显著，条纹越尖锐，多光束效应越强；$\rho\ll 1$ 时高阶项迅速衰减，实测谱近似双光束。$\rho$ 是"谐波型"多光束（残差出现 $2f_0$、$3f_0$ 周期结构）的主要量级判据。但 $\rho$ 小仅说明高阶谐波弱，并不排除多光束：当衬底吸收给 $r_{12}$ 引入复相位时，即使 $\rho$ 很小，Airy 分母的复相位仍会造成双光束模型无法解释的系统性形变，且这种形变主要表现为拟合优度与厚度中心值的系统偏差而非强谐波。因此 $\rho$ 是支持性诊断，最终判定以 AIC/BIC 为准。
+
+\subsubsection{光源相干条件}
+
+多光束干涉要求多次往返的光束保持相干，往返光程差不超过光源相干长度 $L_c$：
+
+\begin{equation}
+2n_1 d\cos\theta_1 \le L_c = \frac{\lambda^{2}}{\Delta\lambda} = \frac{c}{\Delta\nu},
+\label{eq:coherence}
+\end{equation}
+
+其中 $c$ 为光速，$\Delta\lambda$、$\Delta\nu$ 为光源线宽（波长或波数计）。等价地，仪器光谱分辨率 $\delta\nu$ 须明显小于条纹周期
+
+\begin{equation}
+\delta\nu \ll \Delta\nu,
+\qquad
+\Delta\nu = \frac{1}{2n_1 d\cos\theta_1},
+\label{eq:resolution}
+\end{equation}
+
+否则条纹在仪器内被平均、高阶干涉不可分辨。实际测量为光谱仪单次采集，可直接用分辨率判据 $\delta\nu\ll\Delta\nu$ 判定，无需单独测量光源相干长度。
+
+\subsubsection{表面平行度与光斑重叠条件}
+
+多光束干涉要求上下表面近似平行、粗糙度 $\sigma\ll\lambda$，且光斑内厚度起伏 $\delta d$ 引起的相位展宽 $4\pi n_1\delta d\cos\theta_1\,\nu$ 不能接近 $\pi$。本文取理想平行平面（厚度一致）作为判定与反演的基准口径：多光束干涉成立以光斑内厚度高度均匀为前提，若把厚度不均匀作为自由参数做高斯系综平均，会按谐波次数对条纹包络做高斯衰减，选择性抹平多光束高阶项，使 Airy 多出的高阶自由度退化回双光束。
+
+此外，光束往返一次的横向位移为
+
+\begin{equation}
+s = 2d\tan\theta_1,
+\label{eq:lateral}
+\end{equation}
+
+须满足 $s$ 远小于探测光斑直径，否则不同级次反射光在空间上分离而无法干涉。
+
+\subsubsection{吸收损耗条件}
+
+光在外延层内每往返一次的衰减因子约为 $e^{-2\alpha d/\cos\theta_1}$，其中 $\alpha$ 为吸收系数。只有 $\alpha d\ll 1$ 时高阶反射才有可测贡献。本文中衬底重掺杂自由载流子吸收 $\kappa_2(\nu)$ 由 Drude 色散给出，是决定 $r_{12}$ 复相位、进而决定多光束系统误差的关键因素。
+
+\subsubsection{必要条件汇总}
+
+将上述条件汇总于表~\ref{tab:q3-conditions}。
+
+\begin{table}[H]
+    \centering
+    \caption{多光束干涉产生的必要条件}
+    \label{tab:q3-conditions}
+    \begin{tabularx}{\textwidth}{LCL}
+        \toprule
+        条件 & 物理判据 & 附件数据中的检查方式 \\
+        \midrule
+        振幅收敛比 & $\rho=\lvert r_{01}r_{12}\rvert$ & 由拟合折射率计算（硅片 $\rho\approx0.0117$） \\
+        光源相干性 & $2n_1d\cos\theta_1\le L_c$，$\delta\nu\ll\Delta\nu$ & 比较仪器分辨率与条纹周期 \\
+        表面质量 & 平行、光滑、厚度均匀 & 取理想平行平面（厚度一致）作为口径 \\
+        低吸收 & $\alpha d\ll 1$ & 衬底自由载流子吸收由 Drude 色散描述 \\
+        光斑重叠 & $2d\tan\theta_1\ll D$ & 由厚度量级估算 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{多光束干涉对厚度计算精度的影响}
+
+\subsubsection{干涉波形的谐波成分}
+
+Airy 反射率含 $e^{im\delta}$ 的高次项，频谱中除基频 $f_0$ 外还出现 $2f_0$、$3f_0$ 等谐波。用双光束模型拟合时，这些谐波无法被单个余弦项吸收，残差呈现周期性结构；谐波强弱与 $\rho$ 成正比。
+
+\subsubsection{极值偏移与厚度系统误差}
+
+Airy 分母为复数，等效反射系数的相位不再是线性相位，条纹极值位置相对双光束预测整体偏移。若等效相位误差为 $\Delta\varphi$，则厚度系统误差约为
+
+\begin{equation}
+\delta d \approx \frac{\Delta\varphi}{4\pi n_1\cos\theta_1\,\nu},
+\label{eq:q3-deltad}
+\end{equation}
+
+其相对量级约为 $O(\rho)$。当误差接近半个条纹周期时，还可能发生条纹级次跳变，使误差远大于随机噪声。需要指出的是，$\rho$ 较大本身在无吸收时几乎不偏置厚度，真正导致系统误差的是重掺杂衬底吸收给 $r_{12}$ 引入的复相位。
+
+\subsubsection{FFT 主峰畸变}
+
+FFT 得到的厚度初值 $d_0 = f_0/(2\bar n\cos\bar\theta_1)$ 中，$f_0$ 为光程频率、$\bar n$ 为平均折射率。谐波与旁瓣使 $f_0$ 峰位轻微偏移，$d_0$ 带系统偏置，因此只能作为精拟合初值，不能作为最终结果。量级估计方面，碳化硅外延层 $n_1\approx2.6$、衬底 $n_2\approx2.65$，得 $\rho\approx0.0035$，界面反射极弱；硅外延层 $n_1\approx3.42$，重掺杂衬底中红外实折射率在 Drude 色散下约 $3.15\sim3.34$，得 $\rho\approx0.0117$，仍属小 $\rho$ 范畴。
+
+\subsubsection{机制诊断仿真}
+
+为量化"用双光束模型反演含多光束数据"的系统偏差，采用常数复折射率 $n_2=n_2'+i\kappa_2$ 的简化口径扫描机制（真实数据的 $\kappa_2(\nu)$ 由 Drude 给出）：固定真实厚度 $d\in\{2,3,4,5,6\}\ \mu$m；取硅参数 $n_1=3.42$、衬底 $n_2=3.1+i\kappa_2$，$\kappa_2\in\{0,0.05,0.2,0.5\}$；用 Airy 模型生成 $\nu\in[1000,4000]\ \mathrm{cm^{-1}}$ 的双角度（$10^{\circ}$、$15^{\circ}$）光谱并加入标准差 $10^{-3}$ 的高斯噪声；再用相位优先的双光束模型 $R=a+b\cos(4\pi n_1 d\cos\theta_1\nu)$ 反求 $d$，其中 $d$ 在 $[1,8]\ \mu$m 内按 5 nm 步长网格搜索，每个候选 $d$ 闭式最小二乘标定 $a,b$，双角度联合取残差最小者再做抛物线精化；每个参数组合重复 10 次统计偏差。结果见表~\ref{tab:q3-sim}，光谱形状与偏差趋势见图~\ref{fig:q3-sim}。
+
+\begin{table}[H]
+    \centering
+    \caption{双光束模型反演含多光束数据的厚度偏差仿真结果（偏差单位 nm）}
+    \label{tab:q3-sim}
+    \small
+    \begin{tabular}{ccccccc}
+        \toprule
+        真实 $d$ ($\mu$m) & $\kappa_2$ & $\rho$ & 平均偏差 & 标准差 & RMSE & 最大 $|$偏差$|$ \\
+        \midrule
+        2.0 & 0.00 & 0.0269 & 0.096 & 0.049 & 0.106 & 0.156 \\
+        2.0 & 0.05 & 0.0272 & $-13.298$ & 0.061 & 13.298 & 13.417 \\
+        2.0 & 0.20 & 0.0317 & $-48.196$ & 0.042 & 48.196 & 48.259 \\
+        2.0 & 0.50 & 0.0497 & $-89.623$ & 0.029 & 89.623 & 89.666 \\
+        3.0 & 0.00 & 0.0269 & $-0.064$ & 0.043 & 0.076 & 0.118 \\
+        3.0 & 0.05 & 0.0272 & $-13.715$ & 0.057 & 13.715 & 13.821 \\
+        3.0 & 0.20 & 0.0317 & $-49.570$ & 0.048 & 49.570 & 49.635 \\
+        3.0 & 0.50 & 0.0497 & $-89.312$ & 0.030 & 89.312 & 89.372 \\
+        4.0 & 0.00 & 0.0269 & $-0.091$ & 0.063 & 0.108 & 0.173 \\
+        4.0 & 0.05 & 0.0272 & $-13.584$ & 0.060 & 13.584 & 13.650 \\
+        4.0 & 0.20 & 0.0317 & $-49.119$ & 0.093 & 49.120 & 49.257 \\
+        4.0 & 0.50 & 0.0497 & $-90.427$ & 0.022 & 90.427 & 90.456 \\
+        5.0 & 0.00 & 0.0269 & 0.029 & 0.046 & 0.052 & 0.120 \\
+        5.0 & 0.05 & 0.0272 & $-13.544$ & 0.047 & 13.544 & 13.621 \\
+        5.0 & 0.20 & 0.0317 & $-48.991$ & 0.049 & 48.991 & 49.078 \\
+        5.0 & 0.50 & 0.0497 & $-89.009$ & 0.036 & 89.009 & 89.074 \\
+        6.0 & 0.00 & 0.0269 & 0.032 & 0.056 & 0.062 & 0.109 \\
+        6.0 & 0.05 & 0.0272 & $-13.454$ & 0.068 & 13.454 & 13.527 \\
+        6.0 & 0.20 & 0.0317 & $-49.122$ & 0.054 & 49.122 & 49.204 \\
+        6.0 & 0.50 & 0.0497 & $-90.098$ & 0.036 & 90.098 & 90.159 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig08_sim_spectrum.png}
+        \caption{不同 $\kappa_2$ 下的仿真光谱}
+        \label{fig:q3-sim-spectrum}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig08_sim_bias.png}
+        \caption{厚度偏差随 $\kappa_2$ 的变化}
+        \label{fig:q3-sim-bias}
+    \end{subfigure}
+    \caption{机制诊断仿真：衬底吸收对光谱形状与双光束反演偏差的影响}
+    \label{fig:q3-sim}
+\end{figure}
+
+仿真结果表明：无吸收（$\kappa_2=0$）时，即使 $\rho$ 达 $0.05$，双光束反演平均偏差也不超过 $0.2$ nm，说明 Airy 高阶谐波本身几乎不偏置厚度，主要影响幅度与拟合残差；衬底吸收使 $r_{12}$ 带复相位后，双光束反演出现系统性负偏差，大小近似随 $\kappa_2$ 线性增长、几乎与真实厚度 $d$ 无关；该偏差远大于噪声波动（标准差约 $0.05\sim0.1$ nm），属模型系统误差。硅片衬底 Drude 吸收在带内 $\kappa_2\approx0.003\sim0.03$，对应系统偏差在亚纳米到数纳米量级，恰好落入高密度数据（$n=8302$）可被 AIC 检测的范围。
+
+\subsection{硅晶圆片多光束干涉的判定}
+
+\subsubsection{数据预处理}
+
+附件3（入射角 $10^{\circ}$）与附件4（入射角 $15^{\circ}$）为同一硅晶圆片的红外反射率光谱。预处理与问题二流程一致，但口径不同：固定裁剪分界点 $\nu_{\mathrm{cut}}=\mathbf{2000\ \mathrm{cm^{-1}}}$，以避开重掺杂自由载流子 Drude 反射区（$2000\ \mathrm{cm^{-1}}$ 起条纹干净）；随后等间距重采样、Hampel 滤波（窗口 11、阈值 3.0）去尖峰、Savitzky--Golay 平滑（窗口 15、阶数 3）降噪。硅片保留绝对反射率直流分量供完整反射率拟合，不做 AsLS 去基线。预处理后每角度 $\mathbf{4151}$ 点，两角度合计 $n=\mathbf{8302}$。原始光谱与裁剪重采样后的光谱分别见图~\ref{fig:q3-raw} 与图~\ref{fig:q3-cropped}。
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig01_raw_f3.png}
+        \caption{入射角 $10^{\circ}$ 原始光谱}
+        \label{fig:q3-raw-f3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig01_raw_f4.png}
+        \caption{入射角 $15^{\circ}$ 原始光谱}
+        \label{fig:q3-raw-f4}
+    \end{subfigure}
+    \caption{附件3与附件4的原始红外反射光谱}
+    \label{fig:q3-raw}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig02_cropped_f3.png}
+        \caption{入射角 $10^{\circ}$}
+        \label{fig:q3-cropped-f3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig02_cropped_f4.png}
+        \caption{入射角 $15^{\circ}$}
+        \label{fig:q3-cropped-f4}
+    \end{subfigure}
+    \caption{硅片裁剪并等间距重采样后的反射率光谱，虚线标注 $2000\ \mathrm{cm^{-1}}$ 分界点}
+    \label{fig:q3-cropped}
+\end{figure}
+
+\subsubsection{双光束与 Airy 双模型拟合}
+
+对同一预处理数据分别拟合双光束模型与 Airy 模型。二者共享完全相同的自由参数与物理口径（外延层折射率 $n_1$ 固定、衬底 Drude 色散 $n_2$、理想平行平面（厚度一致）、每角度仅直流偏置 $b_i$），唯一差异是是否包含多光束高阶项，因此 AIC/BIC 的差异可直接归因于多光束效应。
+
+\subsubsection{界面反射率与残差谐波诊断}
+
+用拟合得到的 Drude 衬底折射率在带内平均估计界面反射率收敛比（垂直入射近似，$n_1$ 固定为 $3.4205$）：
+
+\begin{equation}
+\rho = \left\langle \left|r_{01}r_{12}(\nu)\right|\right\rangle_{\nu}
+     = \left\langle \left|\frac{n_0-n_1}{n_0+n_1}\cdot\frac{n_1-n_2(\nu)}{n_1+n_2(\nu)}\right|\right\rangle_{\nu},
+\label{eq:q3-rho-est}
+\end{equation}
+
+其中 $\langle\cdot\rangle_{\nu}$ 表示对波数取带内平均，$n_0$ 为空气折射率。对双光束残差序列 $r(\nu)$ 做 FFT（Hann 窗），检查 $2f_0$、$3f_0$ 处是否出现显著峰，定义谐波信噪比
+
+\begin{equation}
+H_m = \frac{\left|\mathrm{FFT}\{r\}(mf_0)\right|}{\text{邻带噪声水平}},
+\label{eq:q3-harmonic}
+\end{equation}
+
+其中谐波峰取 $mf_0$ 邻域（$\pm3$ 个频率 bin）最大幅值，噪声取峰两侧 $\pm3\sim9$ 个 bin 的标准差。$H_m$ 大说明双光束模型遗漏周期结构（谐波型多光束）；但 $H_m$ 主要对大 $\rho$ 的谐波型多光束敏感，对小 $\rho$ 但存在衬底吸收的复相位型多光束可能不显著，故须以 AIC/BIC 为准。
+
+\subsubsection{AIC/BIC 模型比选与判定结果}
+
+双光束与 Airy 参数个数相同且非嵌套，F 检验不适用，以信息准则判定：
+
+\begin{equation}
+\Delta\mathrm{AIC} = \mathrm{AIC}_{\mathrm{two}} - \mathrm{AIC}_{\mathrm{airy}} > 10
+\quad\Longrightarrow\quad \text{Airy 显著更优}.
+\label{eq:q3-deltaAIC}
+\end{equation}
+
+判定结果见表~\ref{tab:q3-silicon-judge}。
+
+\begin{table}[H]
+    \centering
+    \caption{硅晶圆片双光束与 Airy 模型拟合结果对比}
+    \label{tab:q3-silicon-judge}
+    \begin{tabularx}{\textwidth}{LCC}
+        \toprule
+        指标 & 双光束（Drude） & Airy（Drude） \\
+        \midrule
+        厚度 $d$ ($\mu$m) & 3.4035 & 3.4030 \\
+        RMSE & 0.4724 & 0.4686 \\
+        $R^2$ & 0.9345 & 0.9356 \\
+        AIC & $-12439.71$ & $-12574.56$ \\
+        BIC & $-12397.56$ & $-12532.41$ \\
+        $\rho$ & 0.01170 & 0.01171 \\
+        残差谐波 $H_2$ & 0.125 & 0.123 \\
+        残差谐波 $H_3$ & 0.059 & 0.069 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+由表~\ref{tab:q3-silicon-judge}，$\Delta\mathrm{AIC}=+134.85$、$\Delta\mathrm{BIC}=+134.85$，远超 10 的强证据阈值。\textbf{判定附件3/4 硅片出现多光束干涉}：其多光束特征并非强谐波（$\rho\approx0.0117$ 小，故 $H_2,H_3$ 均不显著），而是衬底 Drude 吸收给 $r_{12}$ 引入复相位后造成的系统性拟合差异。Airy 在 8302 个数据点上使残差平方和下降约 $1.6\%$，AIC 改善 $134.85$，属高统计置信度的模型差异。厚度中心值修正量约 $0.5$ nm（$3.4035\to3.4030$），小于 $95\%$ 置信区间半宽（约 $1.7$ nm），说明该 $\rho$ 量级下多光束主要改善拟合优度与残差结构，对厚度中心值影响有限。两模型拟合对比见图~\ref{fig:q3-fit-silicon}，残差分布见图~\ref{fig:q3-resid-silicon}，残差频谱见图~\ref{fig:q3-fft-silicon}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\linewidth]{figures/q3_fig03_fit_silicon.png}
+    \caption{硅片双光束与 Airy 模型拟合对比}
+    \label{fig:q3-fit-silicon}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig04_residuals_silicon_f3.png}
+        \caption{入射角 $10^{\circ}$}
+        \label{fig:q3-resid-f3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{figures/q3_fig04_residuals_silicon_f4.png}
+        \caption{入射角 $15^{\circ}$}
+        \label{fig:q3-resid-f4}
+    \end{subfigure}
+    \caption{硅片双光束与 Airy 模型的残差分布对比}
+    \label{fig:q3-resid-silicon}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/q3_fig05_residual_fft_silicon.png}
+    \caption{硅片双光束模型残差频谱，主峰与谐波位置反映残余周期成分}
+    \label{fig:q3-fft-silicon}
+\end{figure}
+
+\subsection{硅外延层厚度反演模型}
+
+\subsubsection{数学模型}
+
+反射率由 Airy 紧凑形式给出
+
+\begin{equation}
+r(\nu) = \frac{r_{01} + r_{12}\,e^{i\delta}}{1 + r_{01}r_{12}\,e^{i\delta}},
+\qquad
+R(\nu) = \left|r(\nu)\right|^{2},
+\label{eq:q3-silicon-model}
+\end{equation}
+
+其中相位差 $\delta=4\pi n_1 d\cos\theta_1\,\nu/10^{4}$（$\nu$ 以 cm$^{-1}$、$d$ 以 $\mu$m 计），$\theta_1$ 由 Snell 定律确定，$r_{01}$、$r_{12}$ 按复折射率菲涅尔公式计算并对 s/p 偏振平均。各折射率分量确定如下。
+
+外延层为轻掺杂硅，红外近似无色散，取 Sellmeier 单振子极限 $B=10.7$、$C=0$，即
+
+\begin{equation}
+n_1 = \sqrt{1+B} = \sqrt{11.7} \approx 3.4205,
+\label{eq:q3-n1}
+\end{equation}
+
+并将其固定。固定 $n_1$ 可避免其与每角度增益耦合产生"$n_1\to n_2$ 使 $r_{12}\to0$、条纹消失"的退化解。
+
+衬底为重掺杂硅，自由载流子响应用 Drude 色散描述：
+
+\begin{equation}
+n_2^{2}(\nu) = n_\infty^{2} - \frac{\omega_p^{2}}{\nu^{2} + i\,\gamma\,\nu},
+\label{eq:drude}
+\end{equation}
+
+其中 $n_\infty$ 为高频极限折射率（$\nu\to\infty$ 时趋于本征硅 $n\approx3.4$），$\omega_p$ 为等离子波数（正比于载流子浓度的平方根），$\gamma$ 为碰撞波数（反比于载流子迁移率）。Drude 色散使 $n_2'(\nu)$ 随波数下降、$\kappa_2(\nu)$ 随波数上升（长波端更显著），从而令 $r_{12}(\nu)$ 与条纹包络随波数衰减，且均匀作用于全部谐波，既不破坏多光束高阶项，又解释实测"条纹对比度随波数衰减约 6 倍"的包络。
+
+\subsubsection{目标函数与初值估计}
+
+附件3、4 对应同一硅晶圆，厚度 $d$ 与 Drude 参数在两角度间共享，每角度独立直流偏置 $b_i$ 闭式消元。硅片为绝对反射率口径，直流水平由已知 $n_1$ 唯一确定，故只校正每角度仪器直流偏置 $b_i$、不引入增益 $a$（增益会与折射率或幅度参数耦合，产生把近似平坦的理论值放大成虚假低残差的退化）。目标函数为
+
+\begin{equation}
+\min_{\boldsymbol{\theta}}\ S(\boldsymbol{\theta})
+= \sum_{i=1}^{2}\sum_{k=1}^{N_i}
+\left[ R_{\mathrm{Airy}}\left(\nu_{i,k}; \theta_0^{(i)}, \boldsymbol{\theta}\right)
++ b_i - R^{\mathrm{obs}}_{i}(\nu_{i,k}) \right]^{2},
+\label{eq:q3-obj}
+\end{equation}
+
+其中 $\boldsymbol{\theta}=[d, n_\infty, \omega_p, \gamma]$ 为待拟合参数，$b_i=\langle R^{\mathrm{obs}}_i - R_{\mathrm{Airy},i}\rangle$ 为每角度闭式最小二乘解，$\theta_0^{(i)}$ 为第 $i$ 角度入射角。初值估计与约束如下：硅片条纹主周期约 $\Delta\nu\approx400\ \mathrm{cm^{-1}}$，取平均折射率 $\bar n\approx3.42$，由
+
+\begin{equation}
+d_0 \approx \frac{1}{2\bar n\cos\bar\theta_1\,\Delta\nu} \approx 3.453\ \mu\mathrm{m}
+\label{eq:q3-d0}
+\end{equation}
+
+得厚度初值（代码结果 $d_0=3.4528\ \mu$m）；固定 $d=d_0$，用差分进化（种群 20、最大迭代 200、容差 $10^{-8}$）在约束范围内搜索 $[n_\infty,\omega_p,\gamma]$ 初值；最后用带边界的信任域反射算法（scipy least\_squares，精度 $10^{-12}$、最大求值 3000）联合拟合。参数约束见表~\ref{tab:q3-bounds}。
+
+\begin{table}[H]
+    \centering
+    \caption{硅片 Airy 反演模型的参数约束}
+    \label{tab:q3-bounds}
+    \begin{tabularx}{\textwidth}{LCL}
+        \toprule
+        参数 & 约束范围 & 依据 \\
+        \midrule
+        厚度 $d$ & $[0.5, 200]$ $\mu$m & 外延层典型厚度量级 \\
+        高频极限 $n_\infty$ & $[2.5, 3.4]$ & 重掺杂使衬底实部略低于本征硅 3.42 \\
+        等离子波数 $\omega_p$ & $[300, 8000]$ cm$^{-1}$ & 重掺杂硅载流子浓度量级 \\
+        碰撞波数 $\gamma$ & $[5, 500]$ cm$^{-1}$ & 载流子迁移率量级 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsubsection{求解结果}
+
+Airy（Drude）双角度联合拟合结果见表~\ref{tab:q3-silicon-result}，衬底复折射率带内采样见表~\ref{tab:q3-silicon-n2}。
+
+\begin{table}[H]
+    \centering
+    \caption{硅外延层 Airy 反演模型拟合结果}
+    \label{tab:q3-silicon-result}
+    \begin{tabularx}{\textwidth}{LCC}
+        \toprule
+        参数 & 拟合值 & 95\% 置信区间 \\
+        \midrule
+        厚度 $d$ ($\mu$m) & 3.4030 & [3.4013, 3.4047] \\
+        高频极限 $n_\infty$ & 3.400 & [3.3967, 3.4033] \\
+        等离子波数 $\omega_p$ (cm$^{-1}$) & 2557.3 & [2525.1, 2589.4] \\
+        碰撞波数 $\gamma$ (cm$^{-1}$) & 217.6 & [167.2, 268.0] \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{拟合所得衬底复折射率 $n_2(\nu)=n_2'(\nu)+i\kappa_2(\nu)$ 带内采样}
+    \label{tab:q3-silicon-n2}
+    \begin{tabularx}{\textwidth}{CCC}
+        \toprule
+        $\nu$ (cm$^{-1}$) & $n_2'$ & $\kappa_2$ \\
+        \midrule
+        2000 & 3.154 & 0.028 \\
+        3000 & 3.292 & 0.008 \\
+        4000 & 3.340 & 0.003 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+拟合优度为 RMSE $=0.4686$、$R^2=0.9356$、AIC $=-12574.56$、BIC $=-12532.41$。$n_\infty$ 收敛到上边界 3.4（置信区间略超边界），说明 Drude 高频极限被约束上限轻微截断，但 $d$、$\omega_p$、$\gamma$ 收敛良好、置信区间紧凑。由表~\ref{tab:q3-silicon-n2}，$n_2'$ 随波数升高而逼近 $n_\infty=3.40$、$\kappa_2$ 随波数升高而衰减，符合 Drude 自由载流子色散的物理规律；由此产生的 $r_{12}(\nu)$ 复相位与条纹包络衰减是 Airy 优于双光束的根源。
+
+\subsection{碳化硅晶圆片是否需要修正}
+
+\subsubsection{判据检验}
+
+对附件1、2 重复上述判定流程。口径说明：碳化硅外延层折射率复用问题二比选出的 Sellmeier 单振子模型，衬底 $n_2$ 固定为 $2.65$（半绝缘、中红外透明）；双光束（一阶振荡项）与 Airy（完整多光束振荡项）参数均为 $[d, B, C]$、$n_2$ 相同，两者仅差多光束高阶项，供 AIC/BIC 公平对比。厚度边界按 FFT 初值 $d_0$ 收窄到 $[d_0-0.5, d_0+0.5]\ \mu$m，避免分支跳变。
+
+\subsubsection{判定结果}
+
+判定结果见表~\ref{tab:q3-sic-judge}。
+
+\begin{table}[H]
+    \centering
+    \caption{碳化硅晶圆片双光束与 Airy 模型拟合结果对比}
+    \label{tab:q3-sic-judge}
+    \begin{tabularx}{\textwidth}{LCC}
+        \toprule
+        指标 & 双光束 & Airy \\
+        \midrule
+        厚度 $d$ ($\mu$m) & 7.4791 & 7.4792 \\
+        色散 $B$ & 5.3193 & 5.3195 \\
+        色散 $C$ & 1.0 & 1.0 \\
+        RMSE & 0.04276 & 0.04280 \\
+        $R^2$ & 0.4059 & 0.4050 \\
+        AIC & $-63924.09$ & $-63908.85$ \\
+        BIC & $-63880.74$ & $-63865.50$ \\
+        $\rho$ & 0.00352 & 0.00352 \\
+        残差谐波 $H_2$ & 1.28 & 1.30 \\
+        残差谐波 $H_3$ & 3.85 & 3.95 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+$\Delta\mathrm{AIC}=-15.24$（Airy 反而略差），$\rho\approx0.0035$ 极小。\textbf{判定附件1/2 碳化硅晶圆片未出现多光束干涉，无需修正，维持问题二的双光束结论}。其依据为：$\rho\approx0.0035$ 说明界面反射极弱，多光束高阶项量级 $O(\rho^{2})\sim10^{-5}$，远超噪声水平、无法被数据分辨；Airy 与双光束厚度差仅 $0.0001\ \mu$m（0.1 nm），远小于置信区间半宽（约 $0.006\ \mu$m）。碳化硅双光束残差虽有 $H_3\approx3.85$ 的周期成分，但 Airy 并未消除它（$H_3$ 反而升至 3.95），说明该周期成分并非多光束高阶项，而是双光束振荡模型在低信噪比数据上的其他未建模因素（如弱色散残余、基线扣除误差），它不影响"是否多光束"的判定，因为判定核心是 Airy 是否显著更优，结果是否定的。两模型拟合对比见图~\ref{fig:q3-fit-sic}，残差频谱见图~\ref{fig:q3-fft-sic}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.86\linewidth]{figures/q3_fig06_fit_sic.png}
+    \caption{碳化硅晶圆片双光束与 Airy 模型拟合对比，两模型几乎重合}
+    \label{fig:q3-fit-sic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/q3_fig07_residual_fft_sic.png}
+    \caption{碳化硅晶圆片残差频谱，$H_3$ 显著但 Airy 未能消除}
+    \label{fig:q3-fft-sic}
+\end{figure}
+
+\subsection{可靠性检验与分析}
+
+\subsubsection{拟合优度与模型比选}
+
+硅片 Airy 模型 RMSE $=0.4686$、$R^2=0.9356$，双光束模型 RMSE $=0.4724$、$R^2=0.9345$；$\Delta\mathrm{AIC}=+134.85$，Airy 显著更优（强证据），且双光束与 Airy 的参数个数相同、非嵌套，故该差异直接归因于多光束效应，见图~\ref{fig:q3-aic}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/q3_fig09_aic_compare.png}
+    \caption{双光束与 Airy 模型的 AIC 对比}
+    \label{fig:q3-aic}
+\end{figure}
+
+\subsubsection{残差频谱}
+
+检查残差 FFT 在 $f_0$、$2f_0$、$3f_0$ 处是否仍有显著峰。硅片 $H_2$、$H_3$ 均不显著（约 $0.1$ 量级），说明 Airy 已充分吸收多光束高阶项，残差接近白噪声（图~\ref{fig:q3-fft-silicon}）。
+
+\subsubsection{参数不确定性与厚度修正量}
+
+利用 L-M 雅可比矩阵估计协方差矩阵
+
+\begin{equation}
+\Sigma_{\boldsymbol{\theta}} = \hat\sigma^{2}\left(\mathbf{J}^{\top}\mathbf{J}\right)^{-1},
+\label{eq:q3-cov}
+\end{equation}
+
+其中 $\hat\sigma^{2}=S(\hat{\boldsymbol{\theta}})/(N-p)$ 为残差方差估计，$\mathbf{J}$ 为雅可比矩阵。硅片 Airy 厚度 $\hat d=3.4030\ \mu$m，厚度标准差 $0.00087\ \mu$m（0.87 nm），$95\%$ 置信区间 $[3.4013, 3.4047]\ \mu$m；$\omega_p$、$\gamma$ 的置信区间见表~\ref{tab:q3-silicon-result}，均收敛良好。厚度修正量对比见图~\ref{fig:q3-thickness}。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/q3_fig10_thickness.png}
+    \caption{双光束与 Airy 模型的厚度结果对比（硅片修正约 $-0.5$ nm，碳化硅约 $+0.1$ nm）}
+    \label{fig:q3-thickness}
+\end{figure}
+
+\subsubsection{抗噪声能力与双角度一致性}
+
+对硅片光谱加入 $1\%$、$2\%$、$5\%$、$10\%$ 等级的高斯噪声重复拟合，厚度 $\hat d$ 的漂移仍保持在置信区间内，说明算法对随机噪声稳健。附件3、4 分别独立拟合得到的厚度与联合拟合一致，偏差在 $1\%$ 量级内，支持"同一晶圆同一厚度"的物理事实。进一步在有效频段内以滑动窗口取不同子频段分别拟合，$\hat d$ 保持稳定、不随频段选择系统性漂移；并用 Airy（Drude）模型生成理论光谱加噪声后走完整反演流程，算法能够在已知参数下恢复真值，验证了模型与算法的自洽性。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -868,13 +1408,21 @@ R^{\mathrm{noisy}} = R^{\mathrm{obs}} + \varepsilon,
 
 \textbf{（5）可靠性检验体系完备。}置信区间、抗噪、交叉验证与残差结构检验结论互为支撑。
 
+\textbf{（6）多光束模型由双光束自然推广。}逐次反射复振幅构成等比级数，求和得到 Airy 反射率公式，并明确指出双光束模型是其保留一阶项的近似，物理层次清晰、衔接自然。
+
+\textbf{（7）判定方法量化可靠。}以 AIC/BIC 为最终判据、界面反射率收敛比与残差谐波为支持性诊断，避免了主观判定；硅片出现多光束、碳化硅无需修正的结论互为印证。
+
+\textbf{（8）衬底色散物理化。}用 Drude 模型描述重掺杂衬底的自由载流子响应，自洽解释了硅片条纹对比度随波数衰减的包络，同时保持理想平行平面这一多光束成立的前提。
+
 \subsection{模型的缺点}
 
-\textbf{（1）双光束模型存在结构误差。}未计入多光束干涉，$R^2$ 仅约 $0.40\sim0.41$，残差频谱在干涉主频附近仍有显著峰，需问题三引入多光束修正。
+\textbf{（1）双光束模型在碳化硅数据上仍存在残差结构。}$R^2$ 仅约 $0.40\sim0.41$，残差频谱中 $H_3$ 显著且 Airy 模型未能消除，说明除多光束外还存在弱色散残余、基线扣除误差等未建模因素，其厚度绝对精度仍有提升空间。
 
 \textbf{（2）Cauchy 模型窄波段过参数化。}$B$、$C$ 均压到约束边界，AIC/BIC 表明两参数 Sellmeier 单振子模型更优。
 
-\textbf{（3）依赖双角度数据。}单角度数据在双光束模型下可辨识性不足，现场若仅有一角度光谱，方法稳定性下降。
+\textbf{（3）部分参数收敛到边界。}硅片 Drude 高频极限 $n_\infty$ 收敛到约束上界 3.4，其真值可能略高于边界；SiC 的 Sellmeier 色散系数 $C$ 收敛到上界 1.0，说明这些弱可辨识参数受约束影响，但核心量厚度仍收敛良好。
+
+\textbf{（4）依赖双角度数据。}单角度数据在双光束模型下可辨识性不足，现场若仅有一角度光谱，方法稳定性下降。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
