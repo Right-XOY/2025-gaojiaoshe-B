@@ -21,7 +21,7 @@
 
 针对问题三，将问题一的双光束模型推广为多光束干涉：对逐次反射的复振幅求和并取等比级数极限，导出 Airy 反射率公式，并证明双光束模型是其保留一阶项的近似。从振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠五个方面推导多光束干涉的必要条件，并借助机制诊断仿真量化衬底吸收引入的厚度系统偏差。对附件3、附件4的硅晶圆片，采用双光束与 Airy 双模型拟合、界面反射率收敛比估计、残差谐波检验与 \textbf{AIC/BIC} 模型比选进行判定，得到 $\Delta\mathrm{AIC}=+134.85$，据此认定硅片出现多光束干涉；进而以 Airy 公式为反射率框架，以外延层 Sellmeier 色散与衬底 Drude 色散为折射率模型，建立硅外延层厚度反演算法，反演得到硅外延层厚度 $\mathbf{3.4030}\ \mu$m、95\% 置信区间 $[3.4013, 3.4047]\ \mu$m。对附件1、附件2的碳化硅晶圆片以同一套判据检验，得到 $\Delta\mathrm{AIC}=-15.24$ 且界面反射率收敛比仅 $0.0035$，据此认定碳化硅晶圆片未出现多光束干涉，无需修正，维持问题二的厚度结论。
 
-\keywords{碳化硅;外延层厚度;红外干涉法;双光束干涉;多光束干涉;色散模型;非线性最小二乘;可靠性检验}
+\keywords{碳化硅;外延层厚度;多光束干涉;色散模型;非线性最小二乘;Airy 公式}
 
 \end{abstract}
 
@@ -66,6 +66,15 @@
 \subsection{问题三分析}
 
 问题三要求把双光束模型推广为多光束干涉，并定量判定两组实测光谱是否出现多光束干涉。首先将外延层内逐次往返反射的复振幅求和，由等比级数极限导出 Airy 反射率公式，并说明它与双光束模型的一阶近似关系；随后从振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠等物理条件出发，推导多光束干涉的必要条件，并借助机制诊断仿真量化其对厚度反演精度的影响。判定层面，双光束模型与 Airy 模型参数个数相同且非嵌套，故以 \textbf{AIC/BIC} 作为最终判据，界面反射率收敛比与残差谐波作为支持性诊断。对硅片，需在完整反射率口径下建立 Airy 反演模型，衬底重掺杂自由载流子吸收用 \textbf{Drude 色散}描述，外延层折射率固定以避免退化解；对碳化硅晶圆片，复用问题二比选出的 Sellmeier 单振子模型，以同一套判据检验是否需要修正。可靠性检验从拟合优度、残差频谱、参数置信区间与双角度一致性等维度展开。
+
+下图为全文技术路线图：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{figures/fig_roadmap.png}
+    \caption{整体技术路线图}
+    \label{fig:roadmap}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -185,13 +194,11 @@ n_0\sin\theta_0 = n_1\sin\theta_1,
 斜入射时反射系数与偏振有关。记 $n_a$、$n_b$ 为入射侧、折射侧折射率，$\theta_a$、$\theta_b$ 为入射角、折射角（$\theta_b$ 由 Snell 定律确定），则 s 偏振（电场垂直入射面）与 p 偏振（电场平行入射面）的振幅反射系数分别为
 
 \begin{equation}
-r_{ab}^{(s)} = \frac{n_a\cos\theta_a - n_b\cos\theta_b}{n_a\cos\theta_a + n_b\cos\theta_b},
-\label{eq:fresnel-s}
-\end{equation}
-
-\begin{equation}
-r_{ab}^{(p)} = \frac{n_b\cos\theta_a - n_a\cos\theta_b}{n_b\cos\theta_a + n_a\cos\theta_b},
-\label{eq:fresnel-p}
+\begin{cases}
+r_{ab}^{(s)} = \dfrac{n_a\cos\theta_a - n_b\cos\theta_b}{n_a\cos\theta_a + n_b\cos\theta_b},\\[6pt]
+r_{ab}^{(p)} = \dfrac{n_b\cos\theta_a - n_a\cos\theta_b}{n_b\cos\theta_a + n_a\cos\theta_b},
+\end{cases}
+\label{eq:fresnel}
 \end{equation}
 
 两偏振表达式不同，斜入射必须区分。本文涉及空气--外延层界面（$r_{01}$，透射系数 $t_{01}$、$t_{10}$）与外延层--衬底界面（$r_{12}$）。非偏振入射光取两偏振平均：
@@ -208,13 +215,11 @@ R = \frac{R^{(s)} + R^{(p)}}{2},
 设入射光复振幅为 $E_0$，两束反射光复振幅分别为
 
 \begin{equation}
-E_1 = r_{01}\,E_0,
-\label{eq:amp1}
-\end{equation}
-
-\begin{equation}
+\begin{cases}
+E_1 = r_{01}\,E_0,\\[4pt]
 E_2 = \tau\, r_{12}\, e^{i\delta}\, E_0,
-\label{eq:amp2}
+\end{cases}
+\label{eq:amp}
 \end{equation}
 
 其中 $r_{01}$、$r_{12}$ 为上、下界面振幅反射系数，$\tau=t_{01}t_{10}$ 为上界面往返透射系数乘积，$\delta$ 为式~\eqref{eq:phase} 的相位差。光束2振幅因子为 $\tau r_{12}$ 而非单纯的 $r_{12}$。无吸收界面满足 Stokes 倒逆关系
@@ -224,7 +229,7 @@ E_2 = \tau\, r_{12}\, e^{i\delta}\, E_0,
 \label{eq:stokes}
 \end{equation}
 
-即透射往返的强度损失等于单次反射的强度贡献。代入式~\eqref{eq:amp2}，合成振幅反射系数为
+即透射往返的强度损失等于单次反射的强度贡献。代入式~\eqref{eq:amp}，合成振幅反射系数为
 
 \begin{equation}
 r = \frac{E_1 + E_2}{E_0}
@@ -243,7 +248,7 @@ R(\nu) &= |r|^2 \\
 \label{eq:reflectance}
 \end{equation}
 
-其中前两项为两束光各自的强度贡献（直流项），第三项为干涉项。$r_{01}$、$r_{12}$ 按式~\eqref{eq:fresnel-s}、\eqref{eq:fresnel-p} 计算并对两偏振取平均；$n_0<n_1<n_2$ 使半波损失抵消，干涉项取 $+\cos\delta$。条纹周期与极值位置由 $\delta$ 决定，厚度 $d$ 的信息即包含其中。
+其中前两项为两束光各自的强度贡献（直流项），第三项为干涉项。$r_{01}$、$r_{12}$ 按式~\eqref{eq:fresnel} 计算并对两偏振取平均；$n_0<n_1<n_2$ 使半波损失抵消，干涉项取 $+\cos\delta$。条纹周期与极值位置由 $\delta$ 决定，厚度 $d$ 的信息即包含其中。
 
 \subsubsection{折射率色散模型}
 
@@ -391,7 +396,7 @@ f_0 = \frac{2\bar n\,d\cos\bar\theta_1}{10^{4}},
         \caption{入射角 $15^{\circ}$ 裁剪重采样光谱}
         \label{fig:q2-cropped-f2}
     \end{subfigure}
-    \caption{裁剪并等间距重采样后的反射率光谱，虚线标注裁剪分界点}
+    \caption{裁剪并等间距重采样后的反射率光谱}
     \label{fig:q2-cropped}
 \end{figure}
 
@@ -437,7 +442,7 @@ R^{\mathrm{res}}(m\Delta\nu) = R(\nu_k) + \frac{R(\nu_{k+1}) - R(\nu_k)}{\nu_{k+
         \caption{入射角 $15^{\circ}$}
         \label{fig:q2-prepost-f2}
     \end{subfigure}
-    \caption{预处理前后光谱对比，上图为裁剪后原始光谱，下图为去基线、去直流后的干涉振荡信号}
+    \caption{预处理前后光谱对比}
     \label{fig:q2-prepost}
 \end{figure}
 
@@ -517,15 +522,13 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
 物理约束：$n_0<n_1<n_2$ 时理论振荡系数为正，故线性增益须 $a>0$，$a\le0$ 对应反相非物理解，置 $S(d)=\infty$ 排除。L-M 为高斯--牛顿法与梯度下降法的自适应结合，迭代格式为
 
 \begin{equation}
+\begin{cases}
 \left(\mathbf{J}^{\top}\mathbf{J}
 + \lambda\,\mathrm{diag}\left(\mathbf{J}^{\top}\mathbf{J}\right)\right)
-\Delta\boldsymbol{\theta} = -\mathbf{J}^{\top}\mathbf{r},
-\label{eq:lm}
-\end{equation}
-
-\begin{equation}
+\Delta\boldsymbol{\theta} = -\mathbf{J}^{\top}\mathbf{r},\\[6pt]
 \boldsymbol{\theta}^{(k+1)} = \boldsymbol{\theta}^{(k)} + \Delta\boldsymbol{\theta},
-\label{eq:lm-update}
+\end{cases}
+\label{eq:lm}
 \end{equation}
 
 其中 $\mathbf{r}$ 为双角度残差向量，$\mathbf{J}=\partial\mathbf{r}/\partial\boldsymbol{\theta}$ 为雅可比矩阵，$\lambda$ 为自适应阻尼（残差下降时减小、上升时增大），$\mathrm{diag}(\mathbf{J}^{\top}\mathbf{J})$ 改善病态。实现采用带边界的信任域反射算法（scipy.optimize.least\_squares），精度 $10^{-12}$、最大求值 1000 次。
@@ -536,7 +539,7 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
     \item 数据预处理：完成异常区裁剪、等间距重采样、Hampel 滤波、AsLS 基线校正、Savitzky--Golay 平滑与去直流，得到两角度干涉振荡信号。
     \item 初值估计：FFT 估 $\hat f_0$，由式~\eqref{eq:d0} 得厚度初值 $d_0$。
     \item 色散初值搜索：固定 $d=d_0$，差分进化最小化式~\eqref{eq:joint-obj} 得 $\boldsymbol{\beta}_0$。
-    \item 剖面扫描：在 $d_0$ 邻域等距扫描，每个 $d$ 固定厚度、用式~\eqref{eq:lm}、\eqref{eq:lm-update} 优化 $\boldsymbol{\beta}$，排除 $a\le0$ 解。
+    \item 剖面扫描：在 $d_0$ 邻域等距扫描，每个 $d$ 固定厚度、用式~\eqref{eq:lm} 优化 $\boldsymbol{\beta}$，排除 $a\le0$ 解。
     \item 精调与优选：取 $S(d)$ 最小处抛物线插值得 $\hat d$，记录最优色散系数。
     \item 可靠性检验：对 Cauchy 与 Sellmeier 模型分别执行步骤 2 至 5，从拟合优度、置信区间、抗噪能力、双角度一致性与残差结构五方面检验。
 \end{enumerate}
@@ -610,14 +613,14 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\linewidth]{figures/q2_fig04_fit_cauchy.png}
-    \caption{Cauchy 模型拟合对比（上：入射角 $10^{\circ}$，下：入射角 $15^{\circ}$）}
+    \caption{Cauchy 模型拟合对比}
     \label{fig:q2-fit-cauchy}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\linewidth]{figures/q2_fig05_fit_sellmeier1.png}
-    \caption{Sellmeier 单振子模型拟合对比（上：入射角 $10^{\circ}$，下：入射角 $15^{\circ}$）}
+    \caption{Sellmeier 单振子模型拟合对比}
     \label{fig:q2-fit-sellmeier}
 \end{figure}
 
@@ -637,14 +640,14 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\linewidth]{figures/q2_fig06_residuals_cauchy.png}
-    \caption{Cauchy 模型残差随波数的分布（上：入射角 $10^{\circ}$，下：入射角 $15^{\circ}$）}
+    \caption{Cauchy 模型残差随波数的分布}
     \label{fig:q2-resid-cauchy}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\linewidth]{figures/q2_fig06_residuals_sellmeier1.png}
-    \caption{Sellmeier 单振子模型残差随波数的分布（上：入射角 $10^{\circ}$，下：入射角 $15^{\circ}$）}
+    \caption{Sellmeier 单振子模型残差随波数的分布}
     \label{fig:q2-resid-sellmeier}
 \end{figure}
 
@@ -707,29 +710,12 @@ R^{\mathrm{noisy}} = R^{\mathrm{obs}} + \varepsilon,
 \label{eq:noise-model}
 \end{equation}
 
-其中 $\eta$ 取 $1\%\sim5\%$，$\mathrm{std}(R^{\mathrm{obs}})$ 为信号样本标准差。每等级重复 5 次、每次重走完整反演流程（抗噪试验中剖面扫描范围半宽取 $2.0\ \mu$m、步长取 $0.05\ \mu$m 以控制计算量），结果见表~\ref{tab:noise-test} 与图~\ref{fig:q2-reliability}。
-
-\begin{table}[H]
-    \centering
-    \caption{抗噪声能力测试结果（厚度，单位 $\mu$m）}
-    \label{tab:noise-test}
-    \begin{tabularx}{\textwidth}{CCC}
-        \toprule
-        噪声等级 $\eta$ & Cauchy 模型 & Sellmeier 单振子模型 \\
-        \midrule
-        1\% & 7.48139 $\pm$ 0.00005 & 7.48427 $\pm$ 0.00004 \\
-        2\% & 7.48140 $\pm$ 0.00051 & 7.48434 $\pm$ 0.00007 \\
-        3\% & 7.48091 $\pm$ 0.00033 & 7.48422 $\pm$ 0.00009 \\
-        4\% & 7.48120 $\pm$ 0.00105 & 7.48424 $\pm$ 0.00028 \\
-        5\% & 7.48085 $\pm$ 0.00045 & 7.48436 $\pm$ 0.00015 \\
-        \bottomrule
-    \end{tabularx}
-\end{table}
+其中 $\eta$ 取 $1\%\sim5\%$，$\mathrm{std}(R^{\mathrm{obs}})$ 为信号样本标准差。每等级重复 5 次、每次重走完整反演流程（抗噪试验中剖面扫描范围半宽取 $2.0\ \mu$m、步长取 $0.05\ \mu$m 以控制计算量），结果见图~\ref{fig:q2-reliability}。
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/q2_fig07_reliability.png}
-    \caption{厚度随加入噪声等级的变化，虚线为无噪声反演解}
+    \caption{厚度随加入噪声等级的变化}
     \label{fig:q2-reliability}
 \end{figure}
 
@@ -741,11 +727,11 @@ R^{\mathrm{noisy}} = R^{\mathrm{obs}} + \varepsilon,
 
 \begin{table}[H]
     \centering
-    \caption{双角度一致性交叉验证结果（厚度，单位 $\mu$m）}
+    \caption{双角度一致性交叉验证结果}
     \label{tab:cross-check}
     \begin{tabularx}{\textwidth}{LCCC}
         \toprule
-        模型 & 联合拟合 & 仅 $10^{\circ}$ & 仅 $15^{\circ}$ \\
+        模型 & 联合拟合（$\mu$m） & 仅 $10^{\circ}$（$\mu$m） & 仅 $15^{\circ}$（$\mu$m） \\
         \midrule
         Cauchy & 7.4755 & 7.7294 & 7.6231 \\
         Sellmeier 单振子 & 7.4791 & 7.5226 & 7.4197 \\
@@ -807,7 +793,7 @@ R^{\mathrm{noisy}} = R^{\mathrm{obs}} + \varepsilon,
         \caption{Sellmeier 模型残差频谱}
         \label{fig:q2-fft-sellmeier}
     \end{subfigure}
-    \caption{残差频谱以等效厚度为横轴，主峰位置反映残差中的周期成分}
+    \caption{残差频谱}
     \label{fig:q2-resid-fft}
 \end{figure}
 
@@ -908,7 +894,7 @@ R = \frac{R^{(s)} + R^{(p)}}{2},
 \label{eq:q3-reflectance}
 \end{equation}
 
-其中 $R^{(s)}=\left|r^{(s)}\right|^{2}$、$R^{(p)}=\left|r^{(p)}\right|^{2}$ 分别为两偏振强度反射率，$r^{(s)}$、$r^{(p)}$ 按式~\eqref{eq:fresnel-s}、\eqref{eq:fresnel-p} 由复折射率计算。
+其中 $R^{(s)}=\left|r^{(s)}\right|^{2}$、$R^{(p)}=\left|r^{(p)}\right|^{2}$ 分别为两偏振强度反射率，$r^{(s)}$、$r^{(p)}$ 按式~\eqref{eq:fresnel} 由复折射率计算。
 
 \subsubsection{与双光束模型的关系}
 
@@ -1020,12 +1006,12 @@ FFT 得到的厚度初值 $d_0 = f_0/(2\bar n\cos\bar\theta_1)$ 中，$f_0$ 为�
 
 \begin{table}[H]
     \centering
-    \caption{双光束模型反演含多光束数据的厚度偏差仿真结果（偏差单位 nm）}
+    \caption{双光束模型反演含多光束数据的厚度偏差仿真结果}
     \label{tab:q3-sim}
     \small
     \begin{tabular}{ccccccc}
         \toprule
-        真实 $d$ ($\mu$m) & $\kappa_2$ & $\rho$ & 平均偏差 & 标准差 & RMSE & 最大 $|$偏差$|$ \\
+        真实 $d$ ($\mu$m) & $\kappa_2$ & $\rho$ & 平均偏差（nm） & 标准差（nm） & RMSE（nm） & 最大 $|$偏差$|$（nm） \\
         \midrule
         2.0 & 0.00 & 0.0269 & 0.096 & 0.049 & 0.106 & 0.156 \\
         2.0 & 0.05 & 0.0272 & $-13.298$ & 0.061 & 13.298 & 13.417 \\
@@ -1106,7 +1092,7 @@ FFT 得到的厚度初值 $d_0 = f_0/(2\bar n\cos\bar\theta_1)$ 中，$f_0$ 为�
         \caption{入射角 $15^{\circ}$}
         \label{fig:q3-cropped-f4}
     \end{subfigure}
-    \caption{硅片裁剪并等间距重采样后的反射率光谱，虚线标注 $2000\ \mathrm{cm^{-1}}$ 分界点}
+    \caption{硅片裁剪并等间距重采样后的反射率光谱}
     \label{fig:q3-cropped}
 \end{figure}
 
@@ -1194,7 +1180,7 @@ H_m = \frac{\left|\mathrm{FFT}\{r\}(mf_0)\right|}{\text{邻带噪声水平}},
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/q3_fig05_residual_fft_silicon.png}
-    \caption{硅片双光束模型残差频谱，主峰与谐波位置反映残余周期成分}
+    \caption{硅片双光束模型残差频谱}
     \label{fig:q3-fft-silicon}
 \end{figure}
 
@@ -1342,14 +1328,14 @@ $\Delta\mathrm{AIC}=-15.24$（Airy 反而略差），$\rho\approx0.0035$ 极小�
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.86\linewidth]{figures/q3_fig06_fit_sic.png}
-    \caption{碳化硅晶圆片双光束与 Airy 模型拟合对比，两模型几乎重合}
+    \caption{碳化硅晶圆片双光束与 Airy 模型拟合对比}
     \label{fig:q3-fit-sic}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/q3_fig07_residual_fft_sic.png}
-    \caption{碳化硅晶圆片残差频谱，$H_3$ 显著但 Airy 未能消除}
+    \caption{碳化硅晶圆片残差频谱}
     \label{fig:q3-fft-sic}
 \end{figure}
 
@@ -1384,7 +1370,7 @@ $\Delta\mathrm{AIC}=-15.24$（Airy 反而略差），$\rho\approx0.0035$ 极小�
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\linewidth]{figures/q3_fig10_thickness.png}
-    \caption{双光束与 Airy 模型的厚度结果对比（硅片修正约 $-0.5$ nm，碳化硅约 $+0.1$ nm）}
+    \caption{双光束与 Airy 模型的厚度结果对比}
     \label{fig:q3-thickness}
 \end{figure}
 
@@ -1398,32 +1384,23 @@ $\Delta\mathrm{AIC}=-15.24$（Airy 反而略差），$\rho\approx0.0035$ 极小�
 
 \subsection{模型的优点}
 
-\textbf{（1）物理机理驱动，推导严密。}由三层介质模型、Snell 定律、半波损失分析、s/p 偏振菲涅尔系数与 Stokes 倒逆关系逐步导出反射率显式表达式，为厚度反演提供可靠正模型。
+\textbf{（1）双色散模型互证。}Cauchy 与 Sellmeier 模型独立拟合，厚度相差 $0.05\%$，反演对色散形式不敏感。
 
-\textbf{（2）双色散模型互证。}Cauchy 与 Sellmeier 模型独立拟合，厚度相差仅 $0.05\%$，厚度反演对色散模型形式不敏感。
+\textbf{（2）双角度联合反演。}参数自由度不增而数据量翻倍，有效提高可辨识性，交叉验证表明联合拟合优于单角度。
 
-\textbf{（3）双角度联合反演提高可辨识性。}参数自由度不增而数据量翻倍，交叉验证表明联合拟合优于单角度，可将厚度锁定在物理一致分支。
+\textbf{（3）多光束模型自然推广。}逐次反射复振幅构成等比级数，求和得 Airy 反射率公式，双光束为其一阶近似，层次清晰。
 
-\textbf{（4）流程完整可复现。}预处理与反演各环节参数、顺序均明确给出。
-
-\textbf{（5）可靠性检验体系完备。}置信区间、抗噪、交叉验证与残差结构检验结论互为支撑。
-
-\textbf{（6）多光束模型由双光束自然推广。}逐次反射复振幅构成等比级数，求和得到 Airy 反射率公式，并明确指出双光束模型是其保留一阶项的近似，物理层次清晰、衔接自然。
-
-\textbf{（7）判定方法量化可靠。}以 AIC/BIC 为最终判据、界面反射率收敛比与残差谐波为支持性诊断，避免了主观判定；硅片出现多光束、碳化硅无需修正的结论互为印证。
-
-\textbf{（8）衬底色散物理化。}用 Drude 模型描述重掺杂衬底的自由载流子响应，自洽解释了硅片条纹对比度随波数衰减的包络，同时保持理想平行平面这一多光束成立的前提。
+\textbf{（4）判定量化可靠。}以 AIC/BIC 为最终判据，界面反射率收敛比为辅助诊断；硅片多光束、碳化硅无需修正的结论互为印证。
 
 \subsection{模型的缺点}
 
-\textbf{（1）双光束模型在碳化硅数据上仍存在残差结构。}$R^2$ 仅约 $0.40\sim0.41$，残差频谱中 $H_3$ 显著且 Airy 模型未能消除，说明除多光束外还存在弱色散残余、基线扣除误差等未建模因素，其厚度绝对精度仍有提升空间。
+\textbf{（1）残差结构未完全消除。}碳化硅数据 $R^2$ 仅 $0.40\sim0.41$，含弱色散残余等未建模因素，厚度绝对精度仍有提升空间。
 
-\textbf{（2）Cauchy 模型窄波段过参数化。}$B$、$C$ 均压到约束边界，AIC/BIC 表明两参数 Sellmeier 单振子模型更优。
+\textbf{（2）部分参数收敛至约束边界。}Cauchy 的 $B$、$C$、SiC 的 $C$、硅片 Drude $n_\infty$ 均触界，弱可辨识参数受约束影响，但核心量厚度仍收敛良好。
 
-\textbf{（3）部分参数收敛到边界。}硅片 Drude 高频极限 $n_\infty$ 收敛到约束上界 3.4，其真值可能略高于边界；SiC 的 Sellmeier 色散系数 $C$ 收敛到上界 1.0，说明这些弱可辨识参数受约束影响，但核心量厚度仍收敛良好。
+\textbf{（3）依赖双角度数据。}单角度数据在双光束模型下可辨识性不足，现场仅有一角度光谱时方法稳定性下降。
 
-\textbf{（4）依赖双角度数据。}单角度数据在双光束模型下可辨识性不足，现场若仅有一角度光谱，方法稳定性下降。
-
+\newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{thebibliography}{99}
@@ -1439,27 +1416,39 @@ $\Delta\mathrm{AIC}=-15.24$（Airy 反而略差），$\rho\approx0.0035$ 极小�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{appendices}
-\section{文件列表}
+\section{代码文件说明}
 \begin{table}[H]
 \centering
 \begin{tabularx}{\textwidth}{CC}
 \toprule
-文件名   & 功能描述 \\
+文件名 & 功能描述 \\
 \midrule
-q1.m & 问题一反射率模型数值实现 \\
-q2.py & 问题二数据预处理、厚度反演与可靠性检验 \\
+optics.py & 三种色散模型、折射率计算、菲涅尔系数、双光束与 Airy 反射率 \\
+preprocess.py & 光谱读取、STFT 裁剪分界点确定、等间距重采样、Hampel 滤波、AsLS 基线校正、Savitzky--Golay 平滑 \\
+inversion.py & FFT 厚度初值估计、差分进化色散初值搜索、剖面扫描精调厚度、L-M 模型、拟合优度与 AIC/BIC、置信区间、抗噪声测试 \\
+q2.py & 问题二主程序 \\
+q3.py & 问题三主程序 \\
 \bottomrule
 \end{tabularx}
-\label{tab:文件列表}
+\label{tab:code-list}
 \end{table}
 
 \section{代码}
 \noindent
 
-q1.m
-\lstinputlisting[language=Matlab]{code/q1.m}
+optics.py
+\lstinputlisting[language=Python]{code/optics.py}
+
+preprocess.py
+\lstinputlisting[language=Python]{code/preprocess.py}
+
+inversion.py
+\lstinputlisting[language=Python]{code/inversion.py}
 
 q2.py
 \lstinputlisting[language=Python]{code/q2.py}
+
+q3.py
+\lstinputlisting[language=Python]{code/q3.py}
 \end{appendices}
 \end{document}
