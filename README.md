@@ -43,13 +43,6 @@ xelatex -synctex=1 -interaction=nonstopmode article.tex
 - TeX Live / MiKTeX（含 `ctex`、`xeCJK`、`mdframed`、`annotate-equations` 等宏包）
 - 中文字体：项目根目录下 `YaHei.Consolas.1.11b.ttf` 与 `Fira Code Retina Nerd Font Complete.otf`（模板编译所需，请一并保留）
 
-## 注意事项
-
-- 提交前请替换 [article.tex](article.tex) 中的参赛编号（当前为占位 `123456`）与论文标题。
-- 第 26~35 行为"华数杯"所属类别表格，国赛提交请整段注释或删除。
-- 正文为通用模板结构（问题重述、问题分析、模型假设、符号说明、建模求解、灵敏度分析等），请按 B 题内容填充。
-- 禁止公开真实参赛编号与论文数据；上传前请确认 `background/` 与正文中不含涉密/涉身份信息。
-
 ## License
 
 本仓库仅供学习交流，请遵守全国大学生数学建模竞赛的参赛与论文规范。
