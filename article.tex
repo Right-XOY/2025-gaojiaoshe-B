@@ -5,7 +5,7 @@
 \documentclass[withoutpreface,bwprint]{cumcmthesis}
 \input{structure}
 
-\title{碳化硅外延层厚度的确定}
+\title{碳化硅与硅外延层厚度的确定}
 
 \begin{document}
 
@@ -13,15 +13,15 @@
 
 \begin{abstract}
 
-碳化硅外延层厚度是决定功率器件耐压与可靠性的关键参数。本文针对利用红外干涉光谱反演碳化硅外延层厚度的问题，建立\textbf{双光束干涉反射率模型}，设计\textbf{双角度联合厚度反演算法}，并利用同一晶圆片在两个入射角下的实测光谱完成求解与可靠性检验。
+碳化硅外延层厚度是决定功率器件耐压与可靠性的关键参数。本文针对利用红外干涉光谱反演碳化硅外延层厚度的问题，建立\textbf{双光束干涉模型}与\textbf{双角度联合厚度反演算法}，进一步推广为\textbf{多光束干涉模型}，实现对衬底吸收所引入系统偏差的评估与补偿，利用同一晶圆片在两个入射角下的实测光谱完成求解与可靠性检验。
 
-针对问题一，将晶圆片抽象为空气、外延层与衬底构成的三层介质结构，由 Snell 定律与几何光程差推导两束反射光的相位关系，结合半波损失抵消分析及 s/p 偏振菲涅尔系数，借助 Stokes 倒逆关系建立反射率与厚度、折射率之间的显式函数关系；针对折射率随波长变化的特性，分别引入\textbf{Cauchy 色散公式}与\textbf{Sellmeier 双振子公式}，得到两种厚度确定模型，并将厚度反演归结为非线性最小二乘问题。
+针对问题一，将晶圆片抽象为空气、外延层与衬底构成的三层介质结构，由 Snell 定律与几何光程差推导两束反射光的相位关系，结合半波损失抵消分析及 s/p 偏振菲涅尔系数，借助 Stokes 倒逆关系建立反射率与厚度、折射率之间的显式函数关系；针对折射率随波长变化的特性，分别引入\textbf{Cauchy 色散公式}与\textbf{Sellmeier 单振子公式}，得到两种厚度确定模型，并将厚度反演归结为非线性最小二乘问题。
 
-针对问题二，设计完整的光谱预处理与参数反演流程。采用\textbf{滑动窗口 FFT}定量确定低波数异常区的裁剪分界点，经等间距重采样、\textbf{Hampel 滤波}、\textbf{AsLS 基线校正}与\textbf{Savitzky--Golay 平滑}提取纯干涉振荡信号；构造两个入射角共享厚度与色散系数的\textbf{联合非线性最小二乘目标}，以 FFT 与\textbf{差分进化}提供参数初值，用\textbf{剖面扫描与 Levenberg--Marquardt 算法}精调厚度。计算得到 Cauchy 模型厚度 $7.4755\ \mu$m、Sellmeier 单振子模型厚度 $7.4791\ \mu$m，两者相对偏差约 $0.05\%$，95\% 置信区间宽度小于 $0.012\ \mu$m；\textbf{AIC 与 BIC}一致表明 Sellmeier 单振子模型更优。可靠性检验表明，加入 $5\%$ 高斯噪声后厚度漂移小于 $0.1\%$，算法对随机噪声稳健；残差频谱在干涉主频附近仍存在显著峰，说明双光束模型遗漏了周期成分，为多光束干涉修正提供依据。
+针对问题二，设计完整的光谱预处理与参数反演流程。采用\textbf{滑动窗口 FFT}定量确定低波数异常区的裁剪分界点，经等间距重采样、\textbf{Hampel 滤波}、\textbf{AsLS 基线校正}与\textbf{Savitzky--Golay 平滑}提取纯干涉振荡信号；构造两个入射角共享厚度与色散系数的\textbf{联合非线性最小二乘目标}，以 FFT 与\textbf{差分进化}提供参数初值，用\textbf{L--M 算法}精调厚度。计算得到 Cauchy 模型厚度 $\mathbf{7.4755}$\ \mu$m、Sellmeier 单振子模型厚度 $\mathbf{7.4791}$\ \mu$m，两者相对偏差约 $0.05\%$，95\% 置信区间宽度小于 $0.012\ \mu$m；\textbf{AIC 与 BIC}一致表明 Sellmeier 单振子模型更优。可靠性检验表明，加入 $5\%$ 高斯噪声后厚度漂移小于 $0.1\%$，算法对随机噪声稳健。
 
-针对问题三，将问题一的双光束模型推广为多光束干涉：对逐次反射的复振幅求和并取等比级数极限，导出 Airy 反射率公式，并证明双光束模型是其保留一阶项的近似。从振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠五个方面推导多光束干涉的必要条件，并借助机制诊断仿真量化衬底吸收引入的厚度系统偏差。对附件3、附件4的硅晶圆片，采用双光束与 Airy 双模型拟合、界面反射率收敛比估计、残差谐波检验与 \textbf{AIC/BIC} 模型比选进行判定，得到 $\Delta\mathrm{AIC}=+134.85$，据此认定硅片出现多光束干涉；进而以 Airy 公式为反射率框架，以外延层 Sellmeier 色散与衬底 Drude 色散为折射率模型，建立硅外延层厚度反演算法，反演得到硅外延层厚度 $\mathbf{3.4030}\ \mu$m、95\% 置信区间 $[3.4013, 3.4047]\ \mu$m。对附件1、附件2的碳化硅晶圆片以同一套判据检验，得到 $\Delta\mathrm{AIC}=-15.24$ 且界面反射率收敛比仅 $0.0035$，据此认定碳化硅晶圆片未出现多光束干涉，无需修正，维持问题二的厚度结论。
+针对问题三，将双光束模型推广为多光束干涉，通过对逐次反射复振幅等比级数求和导出 \textbf{Airy 反射率公式}，并从\textbf{振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠}等方面推导多光束干涉的必要条件，结合机制诊断 \textbf{仿真量化}衬底吸收对厚度的系统偏差。对硅片，采用双光束与 Airy 双模型拟合、界面反射率估计与残差谐波检验，以 \textbf{AIC/BIC 模型比选}作为最终判据，建立 Airy 反射率、Sellmeier 外延层与 Drude 衬底色散相结合的双角度联合反演模型，以 FFT 与差分进化提供初值，用 \textbf{L--M}算法精拟合。结果表明：\textbf{硅片} $\Delta\mathrm{AIC}=+134.85$，\textbf{出现多光束干涉}，修正后厚度 $\mathbf{3.4030}\ \mu$m，95\% 置信区间 $[3.4013, 3.4047]\ \mu$m；\textbf{碳化硅片} $\Delta\mathrm{AIC}=-15.24$、$\rho=0.0035$，\textbf{未出现多光束干涉}，无需修正。该方法可识别小界面反射率下由衬底吸收复相位引起的“隐式”多光束效应，将判定从定性观察升级为可检验的定量决策。
 
-\keywords{碳化硅;外延层厚度;多光束干涉;色散模型;非线性最小二乘;Airy 公式}
+\keywords{碳化硅; 色散模型; 多光束干涉; L-M 算法; 非线性最小二乘; Airy 公式}
 
 \end{abstract}
 
@@ -65,7 +65,11 @@
 
 \subsection{问题三分析}
 
-问题三要求把双光束模型推广为多光束干涉，并定量判定两组实测光谱是否出现多光束干涉。首先将外延层内逐次往返反射的复振幅求和，由等比级数极限导出 Airy 反射率公式，并说明它与双光束模型的一阶近似关系；随后从振幅收敛比、光源相干性、表面平行度、吸收损耗与光斑重叠等物理条件出发，推导多光束干涉的必要条件，并借助机制诊断仿真量化其对厚度反演精度的影响。判定层面，双光束模型与 Airy 模型参数个数相同且非嵌套，故以 \textbf{AIC/BIC} 作为最终判据，界面反射率收敛比与残差谐波作为支持性诊断。对硅片，需在完整反射率口径下建立 Airy 反演模型，衬底重掺杂自由载流子吸收用 \textbf{Drude 色散}描述，外延层折射率固定以避免退化解；对碳化硅晶圆片，复用问题二比选出的 Sellmeier 单振子模型，以同一套判据检验是否需要修正。可靠性检验从拟合优度、残差频谱、参数置信区间与双角度一致性等维度展开。
+问题三在前两问的基础上，将干涉模型由双光束推广到多光束，要求分析多光束干涉的产生条件及其对厚度计算精度的影响，并结合两类晶圆片的实测光谱选择合适的模型，得到更精确的厚度结果。具体需要解决三个问题：
+其一，推导多光束干涉的必要条件，并分析其对厚度计算精度的影响；其二，判定附件 3、4 硅片是否出现多光束干涉，建立硅外延层厚度的数学模型与算法并给出计算结果；
+其三，回检附件 1、2 碳化硅数据是否需要修正，若需要则消除影响并重新给出厚度。
+
+针对上述问题，首先对问题一的双光束模型进行修正，将逐次反射的复振幅按等比级数累加，推广为 Airy 多光束模型，并据此推导必要条件与精度影响；随后按问题二的流程对附件 3、4 的光谱数据进行预处理，采用频域分析获取厚度初值，用非线性优化对双光束与多光束模型分别拟合，通过模型比选定量判定多光束干涉是否出现，并完成可靠性评估。最后将同一套判据应用于附件 1、2，检验问题二给出的碳化硅厚度结论是否需要修正，从而保证两类材料的判定口径一致、结论相互印证。
 
 下图为全文技术路线图：
 
@@ -259,15 +263,14 @@ n_1(\lambda) = A + \frac{B}{\lambda^2} + \frac{C}{\lambda^4},
 \label{eq:cauchy}
 \end{equation}
 
-其中 $\lambda$ 以 $\mu$m 计，$A$ 为常数项，$B$、$C$ 为高阶色散系数；数值实现按 $\lambda=10^{4}/\nu$ 换算。模型 B 采用 Sellmeier 双振子公式：
+其中 $\lambda$ 以 $\mu$m 计，$A$ 为常数项，$B$、$C$ 为高阶色散系数；数值实现按 $\lambda=10^{4}/\nu$ 换算。模型 B 采用 Sellmeier 单振子公式：
 
 \begin{equation}
-n_1^{2}(\lambda) = 1 + \frac{B_1\lambda^{2}}{\lambda^{2} - C_1}
-                      + \frac{B_2\lambda^{2}}{\lambda^{2} - C_2},
+n_1^{2}(\lambda) = 1 + \frac{B\lambda^{2}}{\lambda^{2} - C},
 \label{eq:sellmeier}
 \end{equation}
 
-其中 $B_1$、$B_2$ 为振子强度，$C_1$、$C_2$ 为谐振波长的平方（小于测量波段波长平方，保证 $n_1$ 为实数）。问题二 $2.5\sim6.4\ \mu$m 窄波段内仅一个振子可辨识，数值实现取单振子形式 $n_1^{2}(\lambda)=1+B\lambda^{2}/(\lambda^{2}-C)$；问题一保留双振子一般式。
+其中 $B$ 为振子强度，$C$ 为谐振波长的平方（小于测量波段波长平方，保证 $n_1$ 为实数）。$2.5\sim6.4\ \mu$m 窄波段内仅一个振子可辨识，故取单振子形式。
 
 \subsubsection{两种厚度确定模型}
 
@@ -291,14 +294,21 @@ R^{(\mathrm{D})}(\nu) = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
         模型 & 待定参数 & 说明 \\
         \midrule
         Cauchy 模型 & $d, A, B, C$ & 厚度 $d$ 为核心量，其余为色散系数 \\
-        Sellmeier 模型 & $d, B_1, C_1, B_2, C_2$ & 厚度 $d$ 为核心量，其余为色散系数 \\
+        Sellmeier 模型 & $d, B, C$ & 厚度 $d$ 为核心量，其余为色散系数 \\
         \bottomrule
     \end{tabularx}
 \end{table}
 
 \subsection{模型求解思路}
 
-给定实测反射谱 $R^{\mathrm{obs}}(\nu)$，厚度与色散系数由最小化理论反射率与实测值的残差平方和确定：
+由式~\eqref{eq:reflectance} 的干涉项 $\cos\delta$ 可知，反射率随波数 $\nu$ 以光程频率
+
+\begin{equation}
+f_0 = \frac{2 n_1 d\cos\theta_1}{10^{4}},
+\label{eq:f0}
+\end{equation}
+
+周期振荡，故当折射率 $n_1$ 已知时，可由条纹频率直接确定厚度 $d = f_0\times10^{4}/(2n_1\cos\theta_1)$。当外延层存在色散时，$n_1$ 随波长变化，厚度与色散系数须联合确定。给定实测反射谱 $R^{\mathrm{obs}}(\nu)$，厚度与色散系数由最小化理论反射率与实测值的残差平方和确定：
 
 \begin{equation}
 \min_{d,\boldsymbol{\beta}}\ S = \sum_{k=1}^{N}
@@ -306,7 +316,7 @@ R^{(\mathrm{D})}(\nu) = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
 \label{eq:q1-fit}
 \end{equation}
 
-其中 $\boldsymbol{\beta}$ 为色散系数向量，$N$ 为光谱点数。式~\eqref{eq:q1-fit} 是非线性最小二乘问题，算法设计、初值估计、双角度联合约束与可靠性检验在问题二完成；数值计算取 $n_0=1.0$、$n_2=2.65$ 作为已知量。
+其中 $\boldsymbol{\beta}$ 为色散系数向量，$N$ 为光谱点数。式~\eqref{eq:q1-fit} 是非线性最小二乘问题；数值计算取 $n_0=1.0$、$n_2=2.65$ 作为已知量。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -316,17 +326,17 @@ R^{(\mathrm{D})}(\nu) = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
 
 \subsubsection{数据概况与原始光谱观察}
 
-附件1与附件2是同一碳化硅晶圆片在入射角 $10^{\circ}$ 与 $15^{\circ}$ 下的红外反射率光谱，第1列为波数 $\nu$（cm$^{-1}$）、第2列为反射率 $R$（\%），波数范围约 $399.67\sim4000.12\ \mathrm{cm^{-1}}$、步长约 $0.482\ \mathrm{cm^{-1}}$。图~\ref{fig:q2-raw} 给出原始光谱。
+附件1与附件2是同一碳化硅晶圆片在入射角 $10^{\circ}$ 与 $15^{\circ}$ 下的红外反射率光谱，第1列为波数 $\nu$（cm$^{-1}$）、第2列为反射率 $R$（\%），波数范围约 $399.67\sim4000.12\ \mathrm{cm^{-1}}$、步长约 $0.482\ \mathrm{cm^{-1}}$。图~\ref{fig:q2-raw} 给出原始红外反射光谱。
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}{0.48\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\linewidth]{figures/q2_fig01_raw_f1.png}
         \caption{入射角 $10^{\circ}$ 原始光谱}
         \label{fig:q2-raw-f1}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.48\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\linewidth]{figures/q2_fig01_raw_f2.png}
         \caption{入射角 $15^{\circ}$ 原始光谱}
         \label{fig:q2-raw-f2}
@@ -335,7 +345,7 @@ R^{(\mathrm{D})}(\nu) = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
     \label{fig:q2-raw}
 \end{figure}
 
-两套数据形态一致：低波数区（约 $<1550\ \mathrm{cm^{-1}}$）存在强背景（Reststrahlen 带）与基线漂移，高波数区呈现清晰干涉条纹；两角度条纹周期因 $\cos\theta_1$ 不同而略有差异，可为联合拟合提供独立信息。低波数异常区会污染 FFT，须先定量裁剪。
+两套数据形态一致：低波数区（约 $<1550\ \mathrm{cm^{-1}}$）存在强背景（Reststrahlen 带）与基线漂移，高波数区呈现清晰干涉条纹；两角度条纹周期因 $\cos\theta_1$ 不同而略有差异，可为联合拟合提供独立信息。低波数异常区会污染 FFT 快速傅里叶变换，须先进行裁剪。
 
 \subsubsection{低波数异常区间的定量裁剪}
 
@@ -343,12 +353,10 @@ R^{(\mathrm{D})}(\nu) = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
 
 \begin{equation}
 R(\nu) \approx \mathrm{DC} + A_c\cos\left(2\pi f_0\nu\right),
-\qquad
-f_0 = \frac{2\bar n\,d\cos\bar\theta_1}{10^{4}},
 \label{eq:fft-freq}
 \end{equation}
 
-其中 $\mathrm{DC}$ 为直流项，$A_c$ 为振荡幅度，$f_0$ 为光程频率，$\bar n$ 为平均折射率，$\bar\theta_1$ 为对应折射角，$d$ 以 $\mu$m 计。有效信号能量集中于 $f_0$ 附近，窗口落入异常区时主峰消失或淹没于噪声。据此用滑动窗口 FFT（短时傅里叶变换）定量确定裁剪分界点：对窗口中心 $\nu_c$，先去趋势（1000 点移动平均）、加 Hann 窗做 FFT，计算主频带与低频残留能量比
+其中 $\mathrm{DC}$ 为直流项，$A_c$ 为振荡幅度，$f_0$ 为式~\eqref{eq:f0} 定义的光程频率（此处以平均折射率 $\bar n$ 近似 $n_1$），$d$ 以 $\mu$m 计。有效信号能量集中于 $f_0$ 附近，窗口落入异常区时主峰消失或淹没于噪声。据此用滑动窗口 FFT（短时傅里叶变换）定量确定裁剪分界点：对窗口中心 $\nu_c$，先去趋势（1000 点移动平均）、加汉宁窗做 FFT，计算主频带与低频残留能量比
 
 \begin{equation}
 \rho(\nu_c) = \frac{E_{\mathrm{band}}(f_0;\nu_c)}{E_{\mathrm{low}}(f_0;\nu_c)},
@@ -368,20 +376,31 @@ f_0 = \frac{2\bar n\,d\cos\bar\theta_1}{10^{4}},
     \centering
     \caption{滑动窗口 FFT 裁剪参数}
     \label{tab:stft-params}
-    \begin{tabularx}{\textwidth}{LCL}
+    \begin{tabularx}{\textwidth}{CCC}
         \toprule
         参数 & 取值 & 含义 \\
         \midrule
-        去趋势窗口 & 1000 点 & 移动平均去除慢变背景，保留条纹 \\
+        去趋势窗口 & 1000 点 & 移动平均 \\
         主频估计区间 & $[1500, 4000]$ cm$^{-1}$ & 估干涉主频 $f_0$ \\
         窗口长度 & 1200 点 & 覆盖不少于 2 个条纹周期 \\
         滑动步长 & 200 点 & 相邻窗口重叠 \\
         主频带 & $f_0 \pm 4$ 个频率 bin & 主频带能量 $E_{\mathrm{band}}$ \\
         低频带 & $f < f_0/2$ & 低频残留能量 $E_{\mathrm{low}}$ \\
-        阈值 $\eta$ & 0.3 & 比值达到峰值的比例即判定 \\
+        阈值 $\eta$ & 0.3 & 比值达到峰值的比例 \\
         \bottomrule
     \end{tabularx}
 \end{table}
+
+\subsubsection{等间距重采样}
+
+FFT 要求严格等距采样，故在裁剪区间内按固定步长 $\Delta\nu$ 线性插值重采样：
+
+\begin{equation}
+R^{\mathrm{res}}(m\Delta\nu) = R(\nu_k) + \frac{R(\nu_{k+1}) - R(\nu_k)}{\nu_{k+1} - \nu_k}\left(m\Delta\nu - \nu_k\right),
+\label{eq:resample}
+\end{equation}
+
+其中 $m$ 为采样序号，$R(\nu_k)$、$R(\nu_{k+1})$ 为相邻原始点，$\Delta\nu=0.482\ \mathrm{cm^{-1}}$ 为原始中位步长。点数 $N=\lfloor(\nu_{\max}-\nu_{\mathrm{cut}})/\Delta\nu\rfloor+1$，得每角度 $\mathbf{5071}$ 点、合计 $\mathbf{10142}$ 点。
 
 \begin{figure}[H]
     \centering
@@ -400,44 +419,33 @@ f_0 = \frac{2\bar n\,d\cos\bar\theta_1}{10^{4}},
     \label{fig:q2-cropped}
 \end{figure}
 
-\subsubsection{等间距重采样}
-
-FFT 要求严格等距采样，故在裁剪区间内按固定步长 $\Delta\nu$ 线性插值重采样：
-
-\begin{equation}
-R^{\mathrm{res}}(m\Delta\nu) = R(\nu_k) + \frac{R(\nu_{k+1}) - R(\nu_k)}{\nu_{k+1} - \nu_k}\left(m\Delta\nu - \nu_k\right),
-\label{eq:resample}
-\end{equation}
-
-其中 $m$ 为采样序号，$R(\nu_k)$、$R(\nu_{k+1})$ 为相邻原始点，$\Delta\nu=0.482\ \mathrm{cm^{-1}}$ 为原始中位步长。点数 $N=\lfloor(\nu_{\max}-\nu_{\mathrm{cut}})/\Delta\nu\rfloor+1$，得每角度 $\mathbf{5071}$ 点、合计 $\mathbf{10142}$ 点。
-
 \subsubsection{去异常、去基线与平滑}
 
 预处理顺序为 Hampel 滤波、AsLS 基线校正、Savitzky--Golay 平滑、去直流，顺序不可颠倒。
 
-第一步，Hampel 滤波剔除孤立异常值：对窗口内每点 $x_i$，当 $|x_i-\mathrm{med}|>t\sigma_{\mathrm{MAD}}$ 时以中位数替换，其中 $\mathrm{med}$、$\sigma_{\mathrm{MAD}}$ 分别为窗口中位数与绝对中位差（乘 1.4826 归一化），实现取窗口 11、阈值 $t=3.0$。
+\textbf{Step 1}：Hampel滤波剔除孤立异常值。对窗口内每点 $x_i$，当 $|x_i-\mathrm{med}|>t\sigma_{\mathrm{MAD}}$ 时以中位数替换，其中 $\mathrm{med}$、$\sigma_{\mathrm{MAD}}$ 分别为窗口中位数与绝对中位差；实现取窗口大小为11，阈值 $t=3.0$。
 
-第二步，AsLS 基线校正：对光谱 $R_i$ 拟合基线 $z_i$，最小化
-
+\textbf{Step 2}：AsLS基线校正。对光谱 $R_i$ 拟合基线 $z_i$，最小化
 \begin{equation}
 \min_{\mathbf{z}}\ \sum_{i} w_i\left(R_i - z_i\right)^{2}
 + \lambda\sum_{i}\left(\Delta^{2}z\right)_{i}^{2},
 \label{eq:asls}
 \end{equation}
+其中权重 $w_i=p$（$R_i>z_i$）或 $w_i=1-p$（$R_i\le z_i$），取 $p=0.01$ 使基线贴附光谱下包络；第二项对二阶差分 $\Delta^{2}z$ 施加平滑惩罚，$\lambda=10^{5}$，迭代10次，校正后光谱记为 $R^{\mathrm{res}}=R_i-z_i$。
 
-其中权重 $w_i=p$（$R_i>z_i$）或 $w_i=1-p$（$R_i\le z_i$），$p=0.01$ 使基线贴附下包络；第二项对二阶差分 $\Delta^{2}z$ 施平滑惩罚，$\lambda=10^{5}$，迭代 10 次。校正后光谱为 $R^{\mathrm{res}}-z$。
+\textbf{Step 3}：Savitzky--Golay平滑。采用窗口内多项式最小二乘拟合，窗口长度取15，多项式阶数取3，在降噪的同时保留干涉振荡细节。
 
-第三步，Savitzky--Golay 平滑：窗口内多项式最小二乘拟合，取窗口 15、阶数 3，降噪同时保留振荡细节。第四步，去直流：减去信号均值，使信号围绕 0 振荡，与理论干涉项同口径。处理后的信号为幅度约 $\mathbf{\pm0.36\%}$ 的纯干涉振荡（图~\ref{fig:q2-prepost}）。
+\textbf{Step 4}：去直流处理。减去信号均值，使信号围绕0振荡，与理论干涉项形式保持一致。经过上述流程处理后的信号为幅度约 $\mathbf{\pm0.36\%}$ 的纯干涉振荡（图~\ref{fig:q2-prepost}）。
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}{0.48\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\linewidth]{figures/q2_fig03_prepost_f1.png}
         \caption{入射角 $10^{\circ}$}
         \label{fig:q2-prepost-f1}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.48\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\linewidth]{figures/q2_fig03_prepost_f2.png}
         \caption{入射角 $15^{\circ}$}
         \label{fig:q2-prepost-f2}
@@ -468,7 +476,7 @@ R^{\mathrm{obs}}_{i,k} \approx a_i\, R^{\mathrm{osc}}\left(\nu_{i,k}; \theta_0^{
 
 其中 $R^{\mathrm{obs}}_{i,k}$ 为第 $i$ 角度第 $k$ 点实测值，$(a_i,b_i)$ 为该角度增益与偏移，对固定 $d,\boldsymbol{\beta}$ 闭式求解、不进入非线性优化器。
 
-同一晶圆片在两入射角下测量，厚度 $d$ 与色散系数 $\boldsymbol{\beta}$ 跨角度共享。构造双角度联合残差平方和
+同一晶圆片在两入射角下测量，厚度 $d$ 与色散系数 $\boldsymbol{\beta}$ 跨角度共享。构造双角度联合残差平方和：
 
 \begin{equation}
 \min_{\boldsymbol{\theta}}\ S(\boldsymbol{\theta}) =
@@ -482,44 +490,47 @@ R^{\mathrm{obs}}_{i,k} \approx a_i\, R^{\mathrm{osc}}\left(\nu_{i,k}; \theta_0^{
 
 \subsubsection{参数初值估计}
 
-非线性最小二乘对初值敏感。对预处理信号做 FFT（Hann 窗、跳过直流、抛物线插值细化峰值）得光程频率 $\hat f_0$，由式~\eqref{eq:fft-freq} 反推厚度初值
+非线性最小二乘对初值敏感。本文先对预处理信号做 FFT（Hann 窗、跳过直流、抛物线插值细化峰值）得光程频率 $\hat f_0$，再由式~\eqref{eq:fft-freq} 反推厚度初值:
 
 \begin{equation}
 d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
 \label{eq:d0}
 \end{equation}
 
-其中 $\bar n=2.6$ 为平均折射率，$\bar\theta_1$ 按式~\eqref{eq:snell} 由 $\bar n$ 计算，$\hat f_0$ 以 cm 计。$d_0$ 受频率分辨率限制，仅作优化初值；本数据得 $d_0=\mathbf{7.6346}\ \mu$m。
+其中 $\bar n=2.6$ 为平均折射率，$\bar\theta_1$ 按式~\eqref{eq:snell} 由 $\bar n$ 计算，$\hat f_0$ 以 cm 计。$d_0$ 受频率分辨率限制，仅作优化初值；本数据得初始厚度 $d_0=\mathbf{7.6346}\ \mu$m。
 
-固定 $d=d_0$，用差分进化在约束范围内搜索色散系数初值 $\boldsymbol{\beta}_0$（目标为式~\eqref{eq:joint-obj}）；实现取种群 20、最大迭代 200、容差 $10^{-8}$。得 Cauchy 初值 $(2.6792,-0.3404,1.0)$、Sellmeier 单振子初值 $(5.0689,1.0)$。参数约束见表~\ref{tab:bounds}。
+固定 $d=d_0$，用\textbf{差分进化}在约束范围内搜索色散系数初值 $\boldsymbol{\beta}_0$（目标为式~\eqref{eq:joint-obj}）；实现取种群 20、最大迭代 200、容差 $10^{-8}$。参数约束见表~\ref{tab:bounds}。
 
 \begin{table}[H]
     \centering
     \caption{参数约束范围}
     \label{tab:bounds}
-    \begin{tabularx}{\textwidth}{LCL}
+    \begin{tabularx}{\textwidth}{C C C}
         \toprule
         参数 & 约束范围 & 依据 \\
         \midrule
-        厚度 $d$ & $[0.5, 200]$ $\mu$m & 外延层典型厚度量级 \\
         Cauchy $A$ & $[1.5, 3.5]$ & 碳化硅红外折射率量级 \\
         Cauchy $B, C$ & $[-1.0, 1.0]$ & 高阶色散项，可正可负 \\
         Sellmeier $B$ & $[0, 8]$ & 振子强度为正 \\
-        Sellmeier $C$ & $[0, 1]$ & 谐振波长平方远小于测量波段 \\
+        Sellmeier $C$ & $[0, 1]$ & 谐振点不落入测试波段 \\
         \bottomrule
     \end{tabularx}
 \end{table}
 
+得到 Cauchy 初值 $(2.6792,-0.3404,1.0)$、Sellmeier 单振子初值 $(5.0689,1.0)$。
+
 \subsubsection{剖面扫描与 Levenberg--Marquardt 精调}
 
-\textbf{目标函数在厚度方向存在多周期分支}，直接将 $d$ 与色散系数一起交给梯度优化易跳入错误分支，故采用剖面扫描 + Levenberg--Marquardt（L-M）两段式策略：第一段在 $[d_0-0.5,\ d_0+0.5]\ \mu$m 内以步长 0.01 $\mu$m 扫描，对每个 $d$ 固定厚度、仅优化 $\boldsymbol{\beta}$（线性参数闭式消元），记录 $S(d)$；第二段在 $S(d)$ 最小处做抛物线插值，得亚网格精调厚度
+\textbf{目标函数在厚度方向存在多周期分支}，直接将 $d$ 与色散系数一起交给梯度优化易跳入错误分支，故采用剖面扫描 + Levenberg--Marquardt（L-M）两段式策略：
+
+第一段在 $[d_0-0.5,\ d_0+0.5]\ \mu$m 内以步长 0.01 $\mu$m 扫描，对每个 $d$ 固定厚度、仅优化 $\boldsymbol{\beta}$（线性参数闭式消元），记录对应的残差平方和$S(d)$；第二段在 $S(d)$ 最小处做抛物线插值，得亚网格精调厚度：
 
 \begin{equation}
 \hat d = \arg\min_{d}\ S(d).
 \label{eq:profile-d}
 \end{equation}
 
-物理约束：$n_0<n_1<n_2$ 时理论振荡系数为正，故线性增益须 $a>0$，$a\le0$ 对应反相非物理解，置 $S(d)=\infty$ 排除。L-M 为高斯--牛顿法与梯度下降法的自适应结合，迭代格式为
+物理约束：$n_0<n_1<n_2$ 时理论振荡系数为正，故线性增益须 $a>0$，$a\le0$ 对应反相非物理解直接排除。L-M 为高斯--牛顿法与梯度下降法的自适应结合，迭代格式为
 
 \begin{equation}
 \begin{cases}
@@ -531,43 +542,11 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
 \label{eq:lm}
 \end{equation}
 
-其中 $\mathbf{r}$ 为双角度残差向量，$\mathbf{J}=\partial\mathbf{r}/\partial\boldsymbol{\theta}$ 为雅可比矩阵，$\lambda$ 为自适应阻尼（残差下降时减小、上升时增大），$\mathrm{diag}(\mathbf{J}^{\top}\mathbf{J})$ 改善病态。实现采用带边界的信任域反射算法（scipy.optimize.least\_squares），精度 $10^{-12}$、最大求值 1000 次。
-
-\subsubsection{算法流程}
-
-\begin{enumerate}
-    \item 数据预处理：完成异常区裁剪、等间距重采样、Hampel 滤波、AsLS 基线校正、Savitzky--Golay 平滑与去直流，得到两角度干涉振荡信号。
-    \item 初值估计：FFT 估 $\hat f_0$，由式~\eqref{eq:d0} 得厚度初值 $d_0$。
-    \item 色散初值搜索：固定 $d=d_0$，差分进化最小化式~\eqref{eq:joint-obj} 得 $\boldsymbol{\beta}_0$。
-    \item 剖面扫描：在 $d_0$ 邻域等距扫描，每个 $d$ 固定厚度、用式~\eqref{eq:lm} 优化 $\boldsymbol{\beta}$，排除 $a\le0$ 解。
-    \item 精调与优选：取 $S(d)$ 最小处抛物线插值得 $\hat d$，记录最优色散系数。
-    \item 可靠性检验：对 Cauchy 与 Sellmeier 模型分别执行步骤 2 至 5，从拟合优度、置信区间、抗噪能力、双角度一致性与残差结构五方面检验。
-\end{enumerate}
+其中 $\mathbf{r}$ 为双角度残差向量，$\mathbf{J}=\partial\mathbf{r}/\partial\boldsymbol{\theta}$ 为雅可比矩阵，$\lambda$ 为自适应阻尼（残差下降时减小、上升时增大），$\mathrm{diag}(\mathbf{J}^{\top}\mathbf{J})$ 改善病态。实现采用带边界的信任域反射算法，精度 $10^{-12}$、最大求值 1000 次。
 
 \subsection{模型求解结果与分析}
 
-\subsubsection{预处理结果}
-
-预处理结果见表~\ref{tab:preprocess}：裁剪分界点 $\mathbf{1556.755\ \mathrm{cm^{-1}}}$，重采样后每角度 5071 点、合计 10142 点，信号幅度约 $\pm0.36\%$。
-
-\begin{table}[H]
-    \centering
-    \caption{数据预处理结果汇总}
-    \label{tab:preprocess}
-    \begin{tabularx}{\textwidth}{LCL}
-        \toprule
-        项目 & 数值 & 说明 \\
-        \midrule
-        裁剪分界点 $\nu_{\mathrm{cut}}$ & $1556.755$ cm$^{-1}$ & 附件1与附件2共用 \\
-        重采样步长 $\Delta\nu$ & $0.482$ cm$^{-1}$ & 原始中位步长 \\
-        每角度点数 & 5071 & 附件1与附件2相同 \\
-        总点数 $N$ & 10142 & 双角度合计 \\
-        预处理后信号幅度 & $\pm0.36\%$ & 去基线、去直流后的振荡信号 \\
-        \bottomrule
-    \end{tabularx}
-\end{table}
-
-\subsubsection{双模型拟合结果}
+\subsubsection{双色散模型拟合结果}
 
 按式~\eqref{eq:joint-obj} 对两模型分别执行完整反演流程，结果见表~\ref{tab:fit-result}，线性校准参数见表~\ref{tab:linear-cal}。
 
@@ -575,7 +554,7 @@ d_0 = \frac{\hat f_0 \times 10^{4}}{2\,\bar n\cos\bar\theta_1},
     \centering
     \caption{两模型拟合结果对比}
     \label{tab:fit-result}
-    \begin{tabularx}{\textwidth}{LCC}
+    \begin{tabularx}{\textwidth}{CCC}
         \toprule
         指标 & Cauchy 模型 & Sellmeier 单振子模型 \\
         \midrule
