@@ -807,15 +807,7 @@ E_m = t_{01}\,t_{10}\,r_{12}\,\left(r_{10}r_{12}\right)^{m-2}\,e^{i(m-1)\delta}\
 \label{eq:q3-em}
 \end{equation}
 
-其中 $r_{01}$、$r_{12}$ 为上、下界面振幅反射系数，$r_{10}$ 为外延层到空气的上界面反射系数，$t_{01}$、$t_{10}$ 为上界面往返透射系数；$\delta$ 为光束在外延层内往返一次的相位差
-
-\begin{equation}
-\delta = \frac{4\pi n_1 d\cos\theta_1}{\lambda}
-      = 4\pi n_1 d\cos\theta_1\,\nu,
-\label{eq:q3-phase}
-\end{equation}
-
-$n_1$ 为外延层折射率，$d$ 为厚度，$\theta_1$ 为由 Snell 定律确定的外延层内折射角，$\nu=1/\lambda$ 为波数。式~\eqref{eq:q3-em} 表明，从 $m=2$ 起相邻两束反射光之间相差因子 $r_{10}r_{12}e^{i\delta}$，即往返一次所经历的两次反射与相位累积。
+其中 $r_{01}$、$r_{12}$ 为上、下界面振幅反射系数，$r_{10}$ 为外延层到空气的上界面反射系数，$t_{01}$、$t_{10}$ 为上界面往返透射系数；$\delta$ 为光束在外延层内往返一次的相位差，与问题一相同，由式~\eqref{eq:phase} 给出。$n_1$ 为外延层折射率，$d$ 为厚度，$\theta_1$ 为由 Snell 定律确定的外延层内折射角，$\nu=1/\lambda$ 为波数。式~\eqref{eq:q3-em} 表明，从 $m=2$ 起相邻两束反射光之间相差因子 $r_{10}r_{12}e^{i\delta}$，即往返一次所经历的两次反射与相位累积。
 
 \subsubsection{复振幅等比级数求和与 Airy 公式}
 
@@ -827,14 +819,7 @@ r = r_{01} + t_{01}t_{10}\,r_{12}\,e^{i\delta}
 \label{eq:q3-series}
 \end{equation}
 
-式中求和项为等比级数。其收敛条件为公比模长小于 1，即
-
-\begin{equation}
-\left|r_{10}r_{12}\,e^{i\delta}\right| < 1,
-\label{eq:q3-converge}
-\end{equation}
-
-由于界面折射率差有限、且介质通常存在一定吸收，该条件一般自然满足。对收敛的等比级数求和，得到保留显式透射系数的严格形式
+式中求和项为等比级数，公比模长 $\left|r_{10}r_{12}e^{i\delta}\right|<1$；由于界面折射率差有限、且介质通常存在一定吸收，该收敛条件一般自然满足。对收敛的等比级数求和，得到保留显式透射系数的严格形式
 
 \begin{equation}
 r = r_{01} + \frac{t_{01}t_{10}\,r_{12}\,e^{i\delta}}{1 - r_{10}r_{12}\,e^{i\delta}}.
@@ -859,26 +844,16 @@ n_2(\nu) = n_2'(\nu) + i\,\kappa_2(\nu),
 \label{eq:q3-n2complex}
 \end{equation}
 
-其中 $n_2'(\nu)$ 为实折射率，$\kappa_2(\nu)$ 为消光系数（吸收指标）。若外延层亦需计及吸收，则 $n_1(\nu)=n_1'+i\kappa_1$，此时相位差 $\delta$ 同时携带传播相位与衰减因子 $e^{-\mathrm{Im}\,\delta}$。对单层薄膜，式~\eqref{eq:q3-airy} 中的 $r_{01}$、$r_{12}$ 按复折射率的菲涅尔公式计算、$\delta$ 取复相位时，该紧凑形式与传输矩阵法给出的 Maxwell 方程精确解解析等价，存在吸收时依然精确，并不依赖 Stokes 关系。因此数值实现直接采用式~\eqref{eq:q3-airy} 的紧凑形式，s、p 偏振分别计算后取平均：
+其中 $n_2'(\nu)$ 为实折射率，$\kappa_2(\nu)$ 为消光系数（吸收指标）。若外延层亦需计及吸收，则 $n_1(\nu)=n_1'+i\kappa_1$，此时相位差 $\delta$ 同时携带传播相位与衰减因子 $e^{-\mathrm{Im}\,\delta}$。对单层薄膜，式~\eqref{eq:q3-airy} 中的 $r_{01}$、$r_{12}$ 按复折射率的菲涅尔公式计算、$\delta$ 取复相位时，该紧凑形式与传输矩阵法给出的 Maxwell 方程精确解解析等价，存在吸收时依然精确，并不依赖 Stokes 关系。因此数值实现直接采用式~\eqref{eq:q3-airy} 的紧凑形式，对 s、p 偏振分别计算复振幅反射系数 $r^{(s)}$、$r^{(p)}$（按式~\eqref{eq:fresnel} 由复折射率计算），再按式~\eqref{eq:polar-avg} 取两偏振平均得反射率
 
 \begin{equation}
 R(\nu) = \left|r(\nu)\right|^{2},
-\qquad
-R = \frac{R^{(s)} + R^{(p)}}{2},
 \label{eq:q3-reflectance}
 \end{equation}
 
-其中 $R^{(s)}=\left|r^{(s)}\right|^{2}$、$R^{(p)}=\left|r^{(p)}\right|^{2}$ 分别为两偏振强度反射率，$r^{(s)}$、$r^{(p)}$ 按式~\eqref{eq:fresnel} 由复折射率计算。
-
 \subsubsection{与双光束模型的关系}
 
-对式~\eqref{eq:q3-series} 的完整级数仅保留一阶项，并取无吸收近似 $r_{10}=-r_{01}$、$t_{01}t_{10}=1-r_{01}^{2}$，即可回到问题一的双光束反射率
-
-\begin{equation}
-R_{\mathrm{two}} = r_{01}^{2} + \left(1-r_{01}^{2}\right)^{2} r_{12}^{2}
-              + 2\,r_{01}r_{12}\left(1-r_{01}^{2}\right)\cos\delta.
-\label{eq:q3-twobeam}
-\end{equation}
+对式~\eqref{eq:q3-series} 的完整级数仅保留一阶项，并取无吸收近似 $r_{10}=-r_{01}$、$t_{01}t_{10}=1-r_{01}^{2}$，即可回到问题一的双光束反射率式~\eqref{eq:reflectance}。
 
 因此\textbf{双光束模型是完整多光束级数的一阶近似}，其多光束修正项的相对量级由 $\rho=\lvert r_{01}r_{12}\rvert$ 决定，弱吸收则额外引入 $e^{-\mathrm{Im}\,\delta}$ 量级的衰减修正。当 $\rho$ 很小时，高阶项迅速衰减，双光束模型与实际谱差异甚小；当 $\rho$ 不可忽略或衬底吸收给 $r_{12}$ 引入显著复相位时，双光束模型将出现可观测的系统偏差。
 
